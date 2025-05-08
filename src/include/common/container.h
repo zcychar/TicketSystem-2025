@@ -12,7 +12,7 @@ namespace sjtu {
     int hashed_key=0;
     int value;
 
-    Key(const std::string &key, const int value = -1): value(value) {
+    Key(const std::string &key, const int value = -2147483648): value(value) {
       hashed_key=0;
       auto size = key.size();
       for (int i = 0; i < size; ++i) {

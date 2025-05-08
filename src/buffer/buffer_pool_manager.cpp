@@ -449,38 +449,4 @@ namespace sjtu {
     // bpm_latch_->unlock();
   }
 
-  /**
-   * @brief Retrieves the pin count of a page. If the page does not exist in memory, return `std::nullopt`.
-   *
-   * This function is thread safe. Callers may invoke this function in a multi-threaded environment where multiple threads
-   * access the same page.
-   *
-   * This function is intended for testing purposes. If this function is implemented incorrectly, it will definitely cause
-   * problems with the test suite and autograder.
-   *
-   * # Implementation
-   *
-   * We will use this function to test if your buffer pool manager is managing pin counts correctly. Since the
-   * `pin_count_` field in `FrameHeader` is an atomic type, you do not need to take the latch on the frame that holds the
-   * page we want to look at. Instead, you can simply use an atomic `load` to safely load the value stored. You will still
-   * need to take the buffer pool latch, however.
-   *
-   * Again, if you are unfamiliar with atomic types, see the official C++ docs
-   * [here](https://en.cppreference.com/w/cpp/atomic/atomic).
-   *
-   *
-   * @param page_id The page ID of the page we want to get the pin count of.
-   * @return std::optional<size_t> The pin count if the page exists, otherwise `std::nullopt`.
-   */
-  auto BufferPoolManager::GetPinCount(page_id_t page_id) -> std::optional<size_t> {
-    // bpm_latch_->lock();
-    auto curr = page_table_.find(page_id);
-    if (curr == page_table_.end()) {
-      // bpm_latch_->unlock();
-      return std::nullopt;
-    }
-    auto cur_count = frames_[curr->second]->pin_count_.load();
-    // bpm_latch_->unlock();
-    return cur_count;
-  }
 } // namespace sjtu

@@ -8,7 +8,7 @@
 
 #include "buffer/lru_k_replacer.h"
 #include "common/config.h"
-#include "disk/disk_scheduler.h"
+#include "disk/disk_manager.h"
 #include "storage/page_guard.h"
 
 namespace sjtu {

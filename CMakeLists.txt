@@ -13,7 +13,6 @@ add_executable(code
         src/storage/b_plus_tree_internal_page.cpp
         src/storage/page_guard.cpp
         src/storage/b_plus_tree.cpp
-        src/disk/disk_scheduler.cpp
         src/disk/disk_manager.cpp
         src/buffer/lru_k_replacer.cpp
         src/buffer/buffer_pool_manager.cpp

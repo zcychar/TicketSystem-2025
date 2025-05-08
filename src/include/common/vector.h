@@ -437,6 +437,12 @@ namespace sjtu {
       return arr_[size_ - 1];
     }
 
+    T &back() {
+      if (size_ == 0) {
+        throw std::runtime_error("");
+      }
+      return arr_[size_ - 1];
+    }
     /**
      * returns an iterator to the beginning.
      */

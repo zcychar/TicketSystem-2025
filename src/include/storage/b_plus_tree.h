@@ -11,7 +11,6 @@
 #pragma once
 
 #include <algorithm>
-#include <deque>
 #include <filesystem>
 #include <iostream>
 #include <optional>
@@ -45,10 +44,10 @@ namespace sjtu {
     page_id_t root_page_id_{INVALID_PAGE_ID};
 
     // Store the write guards of the pages that you're modifying here.
-    std::deque<WritePageGuard> write_set_;
+    sjtu::vector<WritePageGuard> write_set_;
 
     // You may want to use this when getting value, but not necessary.
-    std::deque<ReadPageGuard> read_set_;
+    sjtu::vector<ReadPageGuard> read_set_;
 
     auto IsRootPage(page_id_t page_id) -> bool { return page_id == root_page_id_; }
   };

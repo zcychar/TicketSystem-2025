@@ -19,4 +19,5 @@ add_executable(code
         src/storage/main.cpp
         src/include/common/map.h
         src/include/common/vector.h
+        src/include/common/list.h
 )

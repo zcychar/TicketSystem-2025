@@ -161,7 +161,7 @@ namespace sjtu {
     disk_manager_->DeletePage(page_id);
     cur_frame->Reset();
     replacer_->Remove(cur_frame->frame_id_);
-    free_frames_.emplace_back(cur_frame->frame_id_);
+    free_frames_.push_back(cur_frame->frame_id_);
     page_table_.erase(page_id);
     // bpm_latch_->unlock();
     return true;

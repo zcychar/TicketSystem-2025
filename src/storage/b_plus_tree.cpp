@@ -102,7 +102,7 @@ namespace sjtu {
     if (head_page->root_page_id_ == INVALID_PAGE_ID) {
       return false;
     }
-    ctx.read_set_.emplace_back(bpm_->ReadPage(head_page->root_page_id_));
+    ctx.read_set_.push_back(bpm_->ReadPage(head_page->root_page_id_));
     auto cur_page = ctx.read_set_.back().As<BPlusTreePage>();
 
     while (!cur_page->IsLeafPage()) {
@@ -118,7 +118,7 @@ namespace sjtu {
       if (comparator_(key, page->KeyAt(slot)) < 0) {
         --slot;
       }
-      ctx.read_set_.emplace_back(bpm_->ReadPage(page->ValueAt(slot)));
+      ctx.read_set_.push_back(bpm_->ReadPage(page->ValueAt(slot)));
       cur_page = ctx.read_set_.back().As<BPlusTreePage>();
     }
 
@@ -185,7 +185,7 @@ namespace sjtu {
       return true;
     }
     ctx.root_page_id_ = root_id;
-    ctx.write_set_.emplace_back(bpm_->WritePage(ctx.root_page_id_));
+    ctx.write_set_.push_back(bpm_->WritePage(ctx.root_page_id_));
 
     while (true) {
       auto cur_page = ctx.write_set_.back().AsMut<BPlusTreePage>();
@@ -204,7 +204,7 @@ namespace sjtu {
       if (comparator_(key, page->KeyAt(slot)) < 0) {
         --slot;
       }
-      ctx.write_set_.emplace_back(bpm_->WritePage(page->ValueAt(slot)));
+      ctx.write_set_.push_back(bpm_->WritePage(page->ValueAt(slot)));
     }
 
     auto leaf_page = ctx.write_set_.back().AsMut<LeafPage>();
@@ -369,7 +369,7 @@ namespace sjtu {
     }
     ctx.header_page_ = bpm_->WritePage(header_page_id_);
     ctx.root_page_id_ = root_id;
-    ctx.write_set_.emplace_back(bpm_->WritePage(ctx.root_page_id_));
+    ctx.write_set_.push_back(bpm_->WritePage(ctx.root_page_id_));
 
     while (true) {
       auto cur_page = ctx.write_set_.back().AsMut<BPlusTreePage>();
@@ -388,7 +388,7 @@ namespace sjtu {
       if (comparator_(key, page->KeyAt(slot)) < 0) {
         --slot;
       }
-      ctx.write_set_.emplace_back(bpm_->WritePage(page->ValueAt(slot)));
+      ctx.write_set_.push_back(bpm_->WritePage(page->ValueAt(slot)));
     }
     // Delete the key in leaf-page
     auto leaf_page = ctx.write_set_.back().AsMut<LeafPage>();

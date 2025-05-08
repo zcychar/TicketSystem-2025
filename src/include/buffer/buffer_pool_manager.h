@@ -1,6 +1,5 @@
 #pragma once
 
-#include <list>
 #include <memory>
 #include <shared_mutex>
 
@@ -11,6 +10,7 @@
 #include "common/map.h"
 #include "common/config.h"
 #include "common/vector.h"
+#include "common/list.h"
 
 namespace sjtu {
   class BufferPoolManager;
@@ -149,7 +149,7 @@ namespace sjtu {
     sjtu::map<page_id_t, frame_id_t> page_table_;
 
     /** @brief A list of free frames that do not hold any page's data. */
-    std::list<frame_id_t> free_frames_;
+    sjtu::list<frame_id_t> free_frames_;
 
     /** @brief The replacer to find unpinned / candidate pages for eviction. */
     std::shared_ptr<LRUKReplacer> replacer_;

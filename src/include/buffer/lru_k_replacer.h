@@ -1,13 +1,13 @@
 #pragma once
 
 #include <limits>
-#include <list>
 #include <mutex>  // NOLINT
 #include <optional>
 
 #include "common/config.h"
 #include "common/vector.h"
 #include "common/map.h"
+#include "common/list.h"
 
 namespace sjtu {
   enum class AccessType { Unknown = 0, Lookup, Scan, Index };
@@ -17,19 +17,19 @@ namespace sjtu {
     /** History of last seen K timestamps of this page. Least recent timestamp stored in front. */
     // Remove maybe_unused if you start using them. Feel free to change the member variables as you want.
 
-    std::list<size_t> history_;
+    sjtu::list<size_t> history_;
     size_t k_;
     frame_id_t fid_;
-    std::list<frame_id_t>::iterator place_;
+    sjtu::list<frame_id_t>::iterator place_;
     bool is_evictable_{false};
 
   public:
-    LRUKNode(size_t first_stamp, size_t k, frame_id_t fid) : k_(k), fid_(fid) { history_.emplace_back(first_stamp); };
+    LRUKNode(size_t first_stamp, size_t k, frame_id_t fid) : k_(k), fid_(fid) { history_.push_back(first_stamp); };
 
     auto GetId() -> frame_id_t { return fid_; }
 
     void Access(const size_t timestamp_) {
-      history_.emplace_back(timestamp_);
+      history_.push_back(timestamp_);
       if (history_.size() > k_) {
         history_.pop_front();
       }
@@ -42,8 +42,8 @@ namespace sjtu {
       return 0;
     }
 
-    auto Place() -> std::list<frame_id_t>::iterator { return place_; }
-    void Replace(const std::list<frame_id_t>::iterator &place) { place_ = place; }
+    auto Place() -> sjtu::list<frame_id_t>::iterator { return place_; }
+    void Replace(const sjtu::list<frame_id_t>::iterator &place) { place_ = place; }
     void Setevictable(bool status) { is_evictable_ = status; }
     auto Evictable() -> bool { return is_evictable_; }
   };
@@ -94,8 +94,8 @@ namespace sjtu {
     size_t curr_size_{0};
     size_t replacer_size_;
     size_t k_;
-    std::list<frame_id_t> history_list_;
-    std::list<frame_id_t> cache_list_;
+    sjtu::list<frame_id_t> history_list_;
+    sjtu::list<frame_id_t> cache_list_;
     // std::mutex latch_;
   };
 } // namespace sjtu

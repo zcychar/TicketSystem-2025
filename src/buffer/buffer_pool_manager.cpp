@@ -67,7 +67,6 @@ namespace sjtu {
     frames_.reserve(num_frames_);
 
     // The page table should have exactly `num_frames_` slots, corresponding to exactly `num_frames_` frames.
-    page_table_.reserve(num_frames_);
 
     // Initialize all of the frame headers, and fill the free frame list with all possible frame IDs (since all frames are
     // initially free).
@@ -221,7 +220,7 @@ namespace sjtu {
       // Case2:exist free frame
       auto cur_frame = free_frames_.front();
       free_frames_.pop_front();
-      page_table_.emplace(page_id, cur_frame);
+      page_table_.insert(page_id, cur_frame);
       frames_[cur_frame]->page_id_ = page_id;
       // auto promise = disk_scheduler_->CreatePromise();
       // auto future = promise.get_future();
@@ -248,7 +247,7 @@ namespace sjtu {
     }
     page_table_.erase(cur_frame->page_id_);
     cur_frame->Reset();
-    page_table_.emplace(page_id, cur_frame->frame_id_);
+    page_table_.insert(page_id, cur_frame->frame_id_);
 
     cur_frame->page_id_ = page_id;
     // auto promise = disk_scheduler_->CreatePromise();
@@ -304,7 +303,7 @@ namespace sjtu {
       // Case2:exist free frame
       auto cur_frame = free_frames_.front();
       free_frames_.pop_front();
-      page_table_.emplace(page_id, cur_frame);
+      page_table_.insert(page_id, cur_frame);
       frames_[cur_frame]->page_id_ = page_id;
       // auto promise = disk_scheduler_->CreatePromise();
       // auto future = promise.get_future();
@@ -332,7 +331,7 @@ namespace sjtu {
     }
     page_table_.erase(cur_frame->page_id_);
     cur_frame->Reset();
-    page_table_.emplace(page_id, cur_frame->frame_id_);
+    page_table_.insert(page_id, cur_frame->frame_id_);
 
     cur_frame->page_id_ = page_id;
     // auto promise = disk_scheduler_->CreatePromise();

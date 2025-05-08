@@ -3,13 +3,14 @@
 #include <list>
 #include <memory>
 #include <shared_mutex>
-#include <unordered_map>
+
 #include <vector>
 
 #include "buffer/lru_k_replacer.h"
 #include "common/config.h"
 #include "disk/disk_manager.h"
 #include "storage/page_guard.h"
+#include "common/map.h"
 
 namespace sjtu {
   class BufferPoolManager;
@@ -145,7 +146,7 @@ namespace sjtu {
     std::vector<std::shared_ptr<FrameHeader> > frames_;
 
     /** @brief The page table that keeps track of the mapping between pages and buffer pool frames. */
-    std::unordered_map<page_id_t, frame_id_t> page_table_;
+    sjtu::map<page_id_t, frame_id_t> page_table_;
 
     /** @brief A list of free frames that do not hold any page's data. */
     std::list<frame_id_t> free_frames_;

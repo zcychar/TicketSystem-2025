@@ -16,7 +16,7 @@ namespace sjtu {
       hashed_key=0;
       auto size = key.size();
       for (int i = 0; i < size; ++i) {
-        hashed_key=(1ll*hashed_key*BASE+(int)key[i])%MOD;
+        hashed_key=(1ll*hashed_key*BASE+key[i])%MOD;
       }
     }
   };

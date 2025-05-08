@@ -111,12 +111,12 @@ namespace sjtu {
       auto page_size = page->GetSize();
       auto slot = page_size - 1;
       for (int i = 1; i < page_size; ++i) {
-        if (degraded_comparator_(page->KeyAt(i), key) >= 0) {
+        if (comparator_(page->KeyAt(i), key) >= 0) {
           slot = i;
           break;
         }
       }
-      if (degraded_comparator_(key, page->KeyAt(slot)) < 0) {
+      if (comparator_(key, page->KeyAt(slot)) < 0) {
         --slot;
       }
       ctx.read_set_.emplace_back(bpm_->ReadPage(page->ValueAt(slot))) ;

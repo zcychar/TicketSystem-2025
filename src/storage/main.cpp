@@ -6,8 +6,8 @@ int main() {
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  freopen("in1.txt", "r", stdin);
-  freopen("out1.txt", "w", stdout);
+  // freopen("in1.txt", "r", stdin);
+  // freopen("out1.txt", "w", stdout);
   int n;
   std::cin >> n;
   auto disk_manager = std::make_unique<sjtu::DiskManager>("zcychar_index");

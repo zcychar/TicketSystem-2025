@@ -93,8 +93,8 @@ namespace sjtu {
   auto BPLUSTREE_TYPE::GetAllValue(const KeyType &key, std::vector<ValueType> *result) -> bool {
     // Declaration of context instance.
     Context ctx;
-    ctx.header_page_ = bpm_->WritePage(header_page_id_);
-    auto head_page = ctx.header_page_->AsMut<BPlusTreeHeaderPage>();
+    auto head_guard = bpm_->ReadPage(header_page_id_);
+    auto head_page = head_guard.As<BPlusTreeHeaderPage>();
     if (head_page->root_page_id_ == INVALID_PAGE_ID) {
       return false;
     }
@@ -121,14 +121,30 @@ namespace sjtu {
     auto leaf_page = ctx.read_set_.back().As<LeafPage>();
     auto leaf_size = leaf_page->GetSize();
     for (int i = 0; i < leaf_size; ++i) {
-      if (degraded_comparator_(key, leaf_page->KeyAt(i)) < 0) {
+      auto flag=degraded_comparator_(key, leaf_page->KeyAt(i));
+      if (flag < 0) {
         return true;
       }
-      if (degraded_comparator_(key, leaf_page->KeyAt(i)) == 0) {
+      if (flag == 0) {
         result->emplace_back(leaf_page->RidAt(i));
       }
     }
-
+    auto next_page_id=leaf_page->GetNextPageId();
+    while(next_page_id!=-1) {
+      auto next_guard=bpm_->ReadPage(next_page_id);
+      auto next_page=next_guard.template As<LeafPage>();
+      auto next_page_size=next_page->GetSize();
+      for(int i=0;i<next_page_size;++i) {
+        auto flag=degraded_comparator_(key, next_page->KeyAt(i));
+        if (flag < 0) {
+          return true;
+        }
+        if (flag == 0) {
+          result->emplace_back(next_page->RidAt(i));
+        }
+      }
+      next_page_id=next_page->GetNextPageId();
+    }
     return false;
   }
   /*****************************************************************************

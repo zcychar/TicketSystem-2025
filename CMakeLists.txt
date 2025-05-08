@@ -17,4 +17,5 @@ add_executable(code
         src/disk/disk_manager.cpp
         src/buffer/lru_k_replacer.cpp
         src/buffer/buffer_pool_manager.cpp
+        src/storage/main.cpp
 )

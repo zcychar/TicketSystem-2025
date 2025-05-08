@@ -54,32 +54,6 @@ class BPlusTreeInternalPage : public BPlusTreePage {
 
   void SetValueAt(int index, const ValueType &value);
 
-  /**
-   * @brief For test only, return a string representing all keys in
-   * this internal page, formatted as "(key1,key2,key3,...)"
-   *
-   * @return The string representation of all keys in the current internal page
-   */
-  auto ToString() const -> std::string {
-    std::string kstr = "(";
-    bool first = true;
-
-    // First key of internal page is always invalid
-    for (int i = 1; i < GetSize(); i++) {
-      KeyType key = KeyAt(i);
-      if (first) {
-        first = false;
-      } else {
-        kstr.append(",");
-      }
-
-      kstr.append(std::to_string(key.ToString()));
-    }
-    kstr.append(")");
-
-    return kstr;
-  }
-
  private:
   // Array members for page data.
   KeyType key_array_[INTERNAL_PAGE_SLOT_CNT];

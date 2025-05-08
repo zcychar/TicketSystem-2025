@@ -53,31 +53,6 @@ class BPlusTreeLeafPage : public BPlusTreePage {
   void SetKeyAt(int index, const KeyType &key);
   void SetRidAt(int index, const ValueType &value);
 
-  /**
-   * @brief For test only return a string representing all keys in
-   * this leaf page formatted as "(key1,key2,key3,...)"
-   *
-   * @return The string representation of all keys in the current internal page
-   */
-  auto ToString() const -> std::string {
-    std::string kstr = "(";
-    bool first = true;
-
-    for (int i = 0; i < GetSize(); i++) {
-      KeyType key = KeyAt(i);
-      if (first) {
-        first = false;
-      } else {
-        kstr.append(",");
-      }
-
-      kstr.append(std::to_string(key.ToString()));
-    }
-    kstr.append(")");
-
-    return kstr;
-  }
-
  private:
   page_id_t next_page_id_;
   // Array members for page data.

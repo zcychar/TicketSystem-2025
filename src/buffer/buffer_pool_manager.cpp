@@ -58,8 +58,7 @@ namespace sjtu {
       next_page_id_(0),
       bpm_latch_(std::make_shared<std::mutex>()),
       replacer_(std::make_shared<LRUKReplacer>(num_frames, k_dist)),
-      disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager))
-  {
+      disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)) {
     // Not strictly necessary...
     std::scoped_lock latch(*bpm_latch_);
 
@@ -83,12 +82,7 @@ namespace sjtu {
   /**
    * @brief Destroys the `BufferPoolManager`, freeing up all memory that the buffer pool was using.
    */
-  BufferPoolManager::~BufferPoolManager() {
-    FlushAllPages();
-    frames_.clear();
-    replacer_.reset();
-    disk_scheduler_.reset();
-  }
+  BufferPoolManager::~BufferPoolManager() = default;
 
   /**
    * @brief Returns the number of frames that this buffer pool manages.

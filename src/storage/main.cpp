@@ -3,9 +3,9 @@
 #include <string>
 
 int main() {
-  std::ios::sync_with_stdio(false);
-  std::cin.tie(nullptr);
-  std::cout.tie(nullptr);
+  // std::ios::sync_with_stdio(false);
+  // std::cin.tie(nullptr);
+  // std::cout.tie(nullptr);
   // freopen("in1.txt", "r", stdin);
   // freopen("out1.txt", "w", stdout);
   int n;
@@ -20,6 +20,7 @@ int main() {
   std::string opt,index;int value;
   for(int i=1;i<=n;++i) {
     std::cin>>opt;
+
     switch(opt[0]) {
       case 'i': {
         std::cin>>index>>value;
@@ -29,6 +30,7 @@ int main() {
       case 'd': {
         std::cin>>index>>value;
         tree.Remove(sjtu::Key(index,value));
+        assert(!tree.IsEmpty());
         break;
       }
       case 'f': {
@@ -50,7 +52,6 @@ int main() {
       }
     }
   }
-  tree.Print(bpm);
   bpm->WritePage(page_id).AsMut<sjtu::BPlusTreeHeaderPage>()->next_page_id_=bpm->GetNextPageId();
   bpm->FlushAllPages();
 

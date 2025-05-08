@@ -20,7 +20,6 @@ namespace sjtu {
     }else {
       buffer_pool_manager->SetNextPageId(root_page->next_page_id_);
     }
-
   }
 
   /**

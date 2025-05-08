@@ -3,15 +3,15 @@
 #include <string>
 
 int main() {
-  // std::ios::sync_with_stdio(false);
-  // std::cin.tie(nullptr);
-  // std::cout.tie(nullptr);
-  // freopen("in1.txt", "r", stdin);
-  // freopen("out1.txt", "w", stdout);
+  std::ios::sync_with_stdio(false);
+  std::cin.tie(nullptr);
+  std::cout.tie(nullptr);
+  // freopen("input.txt", "r", stdin);
+  // freopen("output.txt", "w", stdout);
   int n;
   std::cin >> n;
   auto disk_manager = std::make_unique<sjtu::DiskManager>("zcychar_index");
-  auto *bpm = new sjtu::BufferPoolManager(1000, disk_manager.get());
+  auto *bpm = new sjtu::BufferPoolManager(10000, disk_manager.get());
   sjtu::page_id_t page_id = bpm->NewPage();
   sjtu::Comparator comparator;
   sjtu::DegradedComparator degraded_comparator;
@@ -39,8 +39,10 @@ int main() {
         if(result.empty()) {
           std::cout<<"null\n";
         }else {
-          for(auto val:result) {
-            std::cout<<val<<" ";
+          int size=result.size();
+          std::cout<<result[0];
+          for(int i=1;i<size;++i) {
+            std::cout<<" "<<result[i];
           }
           std::cout<<'\n';
         }

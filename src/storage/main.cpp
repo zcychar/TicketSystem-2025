@@ -35,7 +35,6 @@ int main() {
       case 'f': {
         std::cin>>index;
         std::vector<int>result;
-        assert(!tree.IsEmpty());
         tree.GetAllValue(sjtu::Key(index),&result);
         if(result.empty()) {
           std::cout<<"null\n";

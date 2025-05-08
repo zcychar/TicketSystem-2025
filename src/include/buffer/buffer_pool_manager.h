@@ -4,13 +4,13 @@
 #include <memory>
 #include <shared_mutex>
 
-#include <vector>
 
 #include "buffer/lru_k_replacer.h"
-#include "common/config.h"
 #include "disk/disk_manager.h"
 #include "storage/page_guard.h"
 #include "common/map.h"
+#include "common/config.h"
+#include "common/vector.h"
 
 namespace sjtu {
   class BufferPoolManager;
@@ -74,7 +74,7 @@ namespace sjtu {
      *
      * If the frame does not hold any page data, the frame contains all null bytes.
      */
-    std::vector<char> data_;
+    sjtu::vector<char> data_;
 
     /**
      * One potential optimization you could make is storing an optional page ID of the page that the `FrameHeader` is
@@ -143,7 +143,7 @@ namespace sjtu {
     // std::shared_ptr<std::mutex> bpm_latch_;
 
     /** @brief The frame headers of the frames that this buffer pool manages. */
-    std::vector<std::shared_ptr<FrameHeader> > frames_;
+    sjtu::vector<std::shared_ptr<FrameHeader> > frames_;
 
     /** @brief The page table that keeps track of the mapping between pages and buffer pool frames. */
     sjtu::map<page_id_t, frame_id_t> page_table_;

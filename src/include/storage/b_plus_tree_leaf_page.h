@@ -2,7 +2,6 @@
 
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "storage/b_plus_tree_page.h"
 

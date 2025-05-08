@@ -18,4 +18,5 @@ add_executable(code
         src/buffer/buffer_pool_manager.cpp
         src/storage/main.cpp
         src/include/common/map.h
+        src/include/common/vector.h
 )

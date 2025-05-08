@@ -6,8 +6,8 @@ int main() {
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  // freopen("input.txt", "r", stdin);
-  // freopen("output.txt", "w", stdout);
+  freopen("input.txt", "r", stdin);
+  freopen("output.txt", "w", stdout);
   int n;
   std::cin >> n;
   auto disk_manager = std::make_unique<sjtu::DiskManager>("zcychar_index");
@@ -35,7 +35,7 @@ int main() {
       }
       case 'f': {
         std::cin >> index;
-        std::vector<int> result;
+        sjtu::vector<int> result;
         tree.GetAllValue(sjtu::Key(index), &result);
         if (result.empty()) {
           std::cout << "null\n";

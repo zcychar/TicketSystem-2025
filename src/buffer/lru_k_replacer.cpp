@@ -74,7 +74,7 @@ namespace sjtu {
     }
     auto cur = node_store_.find(frame_id);
     if (cur == node_store_.end()) {
-      node_store_.emplace(frame_id, LRUKNode(++current_timestamp_, k_, frame_id));
+      node_store_.insert(frame_id, LRUKNode(++current_timestamp_, k_, frame_id));
       return;
     }
     auto &curr = cur->second;

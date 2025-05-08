@@ -1,6 +1,5 @@
 #pragma once
 
-#include <queue>
 #include <string>
 
 #include "storage/b_plus_tree_page.h"

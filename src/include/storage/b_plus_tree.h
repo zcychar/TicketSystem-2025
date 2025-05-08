@@ -15,10 +15,8 @@
 #include <filesystem>
 #include <iostream>
 #include <optional>
-#include <queue>
 #include <shared_mutex>
 #include <string>
-#include <vector>
 
 #include "common/config.h"
 #include "storage/b_plus_tree_header_page.h"
@@ -26,6 +24,7 @@
 #include "storage/b_plus_tree_leaf_page.h"
 #include "storage/page_guard.h"
 #include "common/container.h"
+#include "common/vector.h"
 
 namespace sjtu {
   struct PrintableBPlusTree;
@@ -78,10 +77,10 @@ namespace sjtu {
     void Remove(const KeyType &key);
 
     // Return the value associated with a given key
-    auto GetValue(const KeyType &key, std::vector<ValueType> *result) -> bool;
+    auto GetValue(const KeyType &key, sjtu::vector<ValueType> *result) -> bool;
 
     // Return all the value associated with a given key
-    auto GetAllValue(const KeyType &key, std::vector<ValueType> *result) -> bool;
+    auto GetAllValue(const KeyType &key, sjtu::vector<ValueType> *result) -> bool;
 
     // Return the page id of the root node
     auto GetRootPageId() -> page_id_t;

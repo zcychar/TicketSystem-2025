@@ -46,7 +46,7 @@ namespace sjtu {
    * @return : true means key exists
    */
   INDEX_TEMPLATE_ARGUMENTS
-  auto BPLUSTREE_TYPE::GetValue(const KeyType &key, std::vector<ValueType> *result) -> bool {
+  auto BPLUSTREE_TYPE::GetValue(const KeyType &key, sjtu::vector<ValueType> *result) -> bool {
     // Declaration of context instance.
     auto head_guard = bpm_->ReadPage(header_page_id_);
     auto head_page = head_guard.As<BPlusTreeHeaderPage>();
@@ -77,7 +77,7 @@ namespace sjtu {
     auto leaf_size = leaf_page->GetSize();
     for (int i = 0; i < leaf_size; ++i) {
       if (comparator_(key, leaf_page->KeyAt(i)) == 0) {
-        result->emplace_back(leaf_page->RidAt(i));
+        result->push_back(leaf_page->RidAt(i));
         return true;
       }
     }
@@ -94,7 +94,7 @@ namespace sjtu {
  * @return : true means key exists
  */
   INDEX_TEMPLATE_ARGUMENTS
-  auto BPLUSTREE_TYPE::GetAllValue(const KeyType &key, std::vector<ValueType> *result) -> bool {
+  auto BPLUSTREE_TYPE::GetAllValue(const KeyType &key, sjtu::vector<ValueType> *result) -> bool {
     // Declaration of context instance.
     Context ctx;
     auto head_guard = bpm_->ReadPage(header_page_id_);
@@ -130,7 +130,7 @@ namespace sjtu {
         return true;
       }
       if (flag == 0) {
-        result->emplace_back(leaf_page->RidAt(i));
+        result->push_back(leaf_page->RidAt(i));
       }
     }
     auto next_page_id = leaf_page->GetNextPageId();
@@ -144,7 +144,7 @@ namespace sjtu {
           return true;
         }
         if (flag == 0) {
-          result->emplace_back(next_page->RidAt(i));
+          result->push_back(next_page->RidAt(i));
         }
       }
       next_page_id = next_page->GetNextPageId();
@@ -239,11 +239,11 @@ namespace sjtu {
       return false;
     }
 
-    std::vector<KeyType> leaf_keys;
-    std::vector<ValueType> leaf_values;
+    sjtu::vector<KeyType> leaf_keys;
+    sjtu::vector<ValueType> leaf_values;
     for (int i = 0; i < leaf_max_size_; ++i) {
-      leaf_keys.emplace_back(leaf_page->KeyAt(i));
-      leaf_values.emplace_back(leaf_page->RidAt(i));
+      leaf_keys.push_back(leaf_page->KeyAt(i));
+      leaf_values.push_back(leaf_page->RidAt(i));
     }
     if (comparator_(key, leaf_page->KeyAt(0)) < 0) {
       leaf_keys.insert(leaf_keys.begin(), key);
@@ -302,11 +302,11 @@ namespace sjtu {
         return true;
       }
 
-      std::vector<KeyType> internal_key;
-      std::vector<page_id_t> internal_value;
+      sjtu::vector<KeyType> internal_key;
+      sjtu::vector<page_id_t> internal_value;
       for (int i = 0; i < internal_max_size_; ++i) {
-        internal_key.emplace_back(cur_page->KeyAt(i));
-        internal_value.emplace_back(cur_page->ValueAt(i));
+        internal_key.push_back(cur_page->KeyAt(i));
+        internal_value.push_back(cur_page->ValueAt(i));
       }
       internal_key.insert(internal_key.begin() + position_to_insert + 1, key_to_insert);
       internal_value.insert(internal_value.begin() + position_to_insert + 1, page_id_to_insert);
@@ -472,8 +472,8 @@ namespace sjtu {
     }
     // Coalesce situation
     auto position_to_delete = leaf_position;
-    std::vector<KeyType> leaf_keys;
-    std::vector<ValueType> leaf_values;
+    sjtu::vector<KeyType> leaf_keys;
+    sjtu::vector<ValueType> leaf_values;
     if (leaf_position > 0) {
       auto left_sib_pos = leaf_position - 1;
       auto left_sib_guard = bpm_->WritePage(leaf_parent_page->ValueAt(left_sib_pos));
@@ -481,12 +481,12 @@ namespace sjtu {
       auto left_sib_size = left_sib_page->GetSize();
       if (left_sib_size + leaf_size <= left_sib_page->GetMaxSize()) {
         for (auto i = 0; i < left_sib_size; ++i) {
-          leaf_keys.emplace_back(left_sib_page->KeyAt(i));
-          leaf_values.emplace_back(left_sib_page->RidAt(i));
+          leaf_keys.push_back(left_sib_page->KeyAt(i));
+          leaf_values.push_back(left_sib_page->RidAt(i));
         }
         for (auto i = 0; i < leaf_size; ++i) {
-          leaf_keys.emplace_back(leaf_page->KeyAt(i));
-          leaf_values.emplace_back(leaf_page->RidAt(i));
+          leaf_keys.push_back(leaf_page->KeyAt(i));
+          leaf_values.push_back(leaf_page->RidAt(i));
         }
         left_sib_size += leaf_size;
         left_sib_page->SetSize(left_sib_size);
@@ -505,12 +505,12 @@ namespace sjtu {
       auto right_sib_page = right_sib_guard.template AsMut<LeafPage>();
       auto right_sib_size = right_sib_page->GetSize();
       for (auto i = 0; i < leaf_size; ++i) {
-        leaf_keys.emplace_back(leaf_page->KeyAt(i));
-        leaf_values.emplace_back(leaf_page->RidAt(i));
+        leaf_keys.push_back(leaf_page->KeyAt(i));
+        leaf_values.push_back(leaf_page->RidAt(i));
       }
       for (auto i = 0; i < right_sib_size; ++i) {
-        leaf_keys.emplace_back(right_sib_page->KeyAt(i));
-        leaf_values.emplace_back(right_sib_page->RidAt(i));
+        leaf_keys.push_back(right_sib_page->KeyAt(i));
+        leaf_values.push_back(right_sib_page->RidAt(i));
       }
 
       leaf_size += right_sib_size;
@@ -597,8 +597,8 @@ namespace sjtu {
         }
       }
 
-      std::vector<KeyType> internal_keys;
-      std::vector<page_id_t> internal_values;
+      sjtu::vector<KeyType> internal_keys;
+      sjtu::vector<page_id_t> internal_values;
       if (cur_position > 0) {
         position_to_delete = cur_position;
         auto left_sib_pos = cur_position - 1;
@@ -607,14 +607,14 @@ namespace sjtu {
         auto left_sib_size = left_sib_page->GetSize();
         if (left_sib_size + cur_size <= left_sib_page->GetMaxSize()) {
           for (int i = 0; i < left_sib_size; ++i) {
-            internal_keys.emplace_back(left_sib_page->KeyAt(i));
-            internal_values.emplace_back(left_sib_page->ValueAt(i));
+            internal_keys.push_back(left_sib_page->KeyAt(i));
+            internal_values.push_back(left_sib_page->ValueAt(i));
           }
-          internal_keys.emplace_back(cur_parent_page->KeyAt(cur_position));
-          internal_values.emplace_back(cur_page->ValueAt(0));
+          internal_keys.push_back(cur_parent_page->KeyAt(cur_position));
+          internal_values.push_back(cur_page->ValueAt(0));
           for (int i = 1; i < cur_size; ++i) {
-            internal_keys.emplace_back(cur_page->KeyAt(i));
-            internal_values.emplace_back(cur_page->ValueAt(i));
+            internal_keys.push_back(cur_page->KeyAt(i));
+            internal_values.push_back(cur_page->ValueAt(i));
           }
           left_sib_size += cur_size;
           left_sib_page->SetSize(left_sib_size);
@@ -631,14 +631,14 @@ namespace sjtu {
         auto right_sib_page = right_sib_guard.template AsMut<InternalPage>();
         auto right_sib_size = right_sib_page->GetSize();
         for (int i = 0; i < cur_size; ++i) {
-          internal_keys.emplace_back(cur_page->KeyAt(i));
-          internal_values.emplace_back(cur_page->ValueAt(i));
+          internal_keys.push_back(cur_page->KeyAt(i));
+          internal_values.push_back(cur_page->ValueAt(i));
         }
-        internal_keys.emplace_back(cur_parent_page->KeyAt(right_sib_pos));
-        internal_values.emplace_back(right_sib_page->ValueAt(0));
+        internal_keys.push_back(cur_parent_page->KeyAt(right_sib_pos));
+        internal_values.push_back(right_sib_page->ValueAt(0));
         for (int i = 1; i < right_sib_size; ++i) {
-          internal_keys.emplace_back(right_sib_page->KeyAt(i));
-          internal_values.emplace_back(right_sib_page->ValueAt(i));
+          internal_keys.push_back(right_sib_page->KeyAt(i));
+          internal_values.push_back(right_sib_page->ValueAt(i));
         }
         cur_size += right_sib_size;
         cur_page->SetSize(cur_size);

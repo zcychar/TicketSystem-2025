@@ -30,6 +30,7 @@ int main() {
       case 'd': {
         std::cin>>index>>value;
         tree.Remove(sjtu::Key(index,value));
+        assert(!tree.IsEmpty());
         break;
       }
       case 'f': {
@@ -46,6 +47,7 @@ int main() {
           }
           std::cout<<'\n';
         }
+        assert(!tree.IsEmpty());
         break;
       }
       default: {

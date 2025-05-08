@@ -1,0 +1,12 @@
+BasedOnStyle: Google
+DerivePointerAlignment: false
+PointerAlignment: Right
+ColumnLimit: 120
+IndentWidth: 4
+UseTab: false
+BreakBeforeBraces: Attach
+ColumnLimit: 80
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+AllowShortLambdasOnASingleLine: None
+---

@@ -17,7 +17,5 @@ namespace sjtu {
     page_id_t next_page_id_;
 
     page_id_t root_page_id_;
-
-
   };
 } // namespace sjtu

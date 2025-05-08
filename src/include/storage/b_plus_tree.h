@@ -81,7 +81,7 @@ namespace sjtu {
     auto GetValue(const KeyType &key, std::vector<ValueType> *result) -> bool;
 
     // Return all the value associated with a given key
-    auto GetAllValue(const KeyType &key, std::vector<ValueType> *result) -> bool ;
+    auto GetAllValue(const KeyType &key, std::vector<ValueType> *result) -> bool;
 
     // Return the page id of the root node
     auto GetRootPageId() -> page_id_t;
@@ -109,7 +109,6 @@ namespace sjtu {
         }
         std::cout << std::endl;
         std::cout << std::endl;
-
       } else {
         auto *internal = reinterpret_cast<const InternalPage *>(page);
         std::cout << "Internal Page: " << page_id << std::endl;
@@ -136,7 +135,6 @@ namespace sjtu {
     }
 
   private:
-
     // member variable
     std::string index_name_;
     BufferPoolManager *bpm_;
@@ -147,5 +145,4 @@ namespace sjtu {
     int internal_max_size_;
     page_id_t header_page_id_;
   };
-
 } // namespace bustub

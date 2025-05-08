@@ -15,9 +15,9 @@ namespace sjtu {
       header_page_id_(header_page_id) {
     WritePageGuard guard = bpm_->WritePage(header_page_id_);
     auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
-    if(root_page->root_page_id_==0) {
+    if (root_page->root_page_id_ == 0) {
       root_page->root_page_id_ = INVALID_PAGE_ID;
-    }else {
+    } else {
       buffer_pool_manager->SetNextPageId(root_page->next_page_id_);
     }
   }
@@ -102,11 +102,11 @@ namespace sjtu {
     if (head_page->root_page_id_ == INVALID_PAGE_ID) {
       return false;
     }
-    ctx.read_set_.emplace_back(bpm_->ReadPage(head_page->root_page_id_)) ;
+    ctx.read_set_.emplace_back(bpm_->ReadPage(head_page->root_page_id_));
     auto cur_page = ctx.read_set_.back().As<BPlusTreePage>();
 
     while (!cur_page->IsLeafPage()) {
-      auto page =  ctx.read_set_.back().As<InternalPage>();
+      auto page = ctx.read_set_.back().As<InternalPage>();
       auto page_size = page->GetSize();
       auto slot = page_size - 1;
       for (int i = 1; i < page_size; ++i) {
@@ -118,14 +118,14 @@ namespace sjtu {
       if (comparator_(key, page->KeyAt(slot)) < 0) {
         --slot;
       }
-      ctx.read_set_.emplace_back(bpm_->ReadPage(page->ValueAt(slot))) ;
+      ctx.read_set_.emplace_back(bpm_->ReadPage(page->ValueAt(slot)));
       cur_page = ctx.read_set_.back().As<BPlusTreePage>();
     }
 
     auto leaf_page = ctx.read_set_.back().As<LeafPage>();
     auto leaf_size = leaf_page->GetSize();
     for (int i = 0; i < leaf_size; ++i) {
-      auto flag=degraded_comparator_(key, leaf_page->KeyAt(i));
+      auto flag = degraded_comparator_(key, leaf_page->KeyAt(i));
       if (flag < 0) {
         return true;
       }
@@ -133,13 +133,13 @@ namespace sjtu {
         result->emplace_back(leaf_page->RidAt(i));
       }
     }
-    auto next_page_id=leaf_page->GetNextPageId();
-    while(next_page_id!=-1) {
-      auto next_guard=bpm_->ReadPage(next_page_id);
-      auto next_page=next_guard.template As<LeafPage>();
-      auto next_page_size=next_page->GetSize();
-      for(int i=0;i<next_page_size;++i) {
-        auto flag=degraded_comparator_(key, next_page->KeyAt(i));
+    auto next_page_id = leaf_page->GetNextPageId();
+    while (next_page_id != -1) {
+      auto next_guard = bpm_->ReadPage(next_page_id);
+      auto next_page = next_guard.template As<LeafPage>();
+      auto next_page_size = next_page->GetSize();
+      for (int i = 0; i < next_page_size; ++i) {
+        auto flag = degraded_comparator_(key, next_page->KeyAt(i));
         if (flag < 0) {
           return true;
         }
@@ -147,10 +147,11 @@ namespace sjtu {
           result->emplace_back(next_page->RidAt(i));
         }
       }
-      next_page_id=next_page->GetNextPageId();
+      next_page_id = next_page->GetNextPageId();
     }
     return false;
   }
+
   /*****************************************************************************
    * INSERTION
    *****************************************************************************/

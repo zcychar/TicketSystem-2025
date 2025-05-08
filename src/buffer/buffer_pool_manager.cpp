@@ -80,7 +80,7 @@ namespace sjtu {
   /**
    * @brief Destroys the `BufferPoolManager`, freeing up all memory that the buffer pool was using.
    */
-  BufferPoolManager::~BufferPoolManager()=default;
+  BufferPoolManager::~BufferPoolManager() = default;
 
   /**
    * @brief Returns the number of frames that this buffer pool manages.
@@ -93,7 +93,7 @@ namespace sjtu {
 
   void BufferPoolManager::SetNextPageId(page_id_t next_page_id) {
     next_page_id_.store(next_page_id);
-    disk_manager_->IncreaseDiskSpace(next_page_id+1);
+    disk_manager_->IncreaseDiskSpace(next_page_id + 1);
   }
 
 
@@ -228,7 +228,7 @@ namespace sjtu {
       // DiskRequest dr = DiskRequest{false, frames_[cur_frame]->GetDataMut(), page_id, std::move(promise)};
       // disk_scheduler_->Schedule(std::move(dr));
       // future.get();
-      disk_manager_->ReadPage( page_id, frames_[cur_frame]->GetDataMut());
+      disk_manager_->ReadPage(page_id, frames_[cur_frame]->GetDataMut());
       replacer_->RecordAccess(cur_frame);
       ++frames_[cur_frame]->pin_count_;
       replacer_->SetEvictable(cur_frame, false);
@@ -256,7 +256,7 @@ namespace sjtu {
     // DiskRequest dr = DiskRequest{false, cur_frame->GetDataMut(), page_id, std::move(promise)};
     // disk_scheduler_->Schedule(std::move(dr));
     // future.get();
-    disk_manager_->ReadPage( page_id, cur_frame->GetDataMut());
+    disk_manager_->ReadPage(page_id, cur_frame->GetDataMut());
     replacer_->RecordAccess(cur_frame->frame_id_);
     ++frames_[cur_frame->frame_id_]->pin_count_;
     replacer_->SetEvictable(cur_frame->frame_id_, false);
@@ -311,7 +311,7 @@ namespace sjtu {
       // DiskRequest dr = DiskRequest{false, frames_[cur_frame]->GetDataMut(), page_id, std::move(promise)};
       // disk_scheduler_->Schedule(std::move(dr));
       // future.get();
-      disk_manager_->ReadPage(page_id,frames_[cur_frame]->GetDataMut());
+      disk_manager_->ReadPage(page_id, frames_[cur_frame]->GetDataMut());
       replacer_->RecordAccess(cur_frame);
       ++frames_[cur_frame]->pin_count_;
       replacer_->SetEvictable(cur_frame, false);
@@ -340,7 +340,7 @@ namespace sjtu {
     // DiskRequest dr = DiskRequest{false, cur_frame->GetDataMut(), page_id, std::move(promise)};
     // disk_scheduler_->Schedule(std::move(dr));
     // future.get();
-    disk_manager_->ReadPage(page_id,cur_frame->GetDataMut());
+    disk_manager_->ReadPage(page_id, cur_frame->GetDataMut());
     replacer_->RecordAccess(cur_frame->frame_id_);
     ++frames_[cur_frame->frame_id_]->pin_count_;
     replacer_->SetEvictable(cur_frame->frame_id_, false);
@@ -427,7 +427,7 @@ namespace sjtu {
     // DiskRequest dr = DiskRequest{true, cur_frame->GetDataMut(), page_id, std::move(promise)};
     // disk_scheduler_->Schedule(std::move(dr));
     // future.get();
-    disk_manager_->WritePage(page_id,cur_frame->GetDataMut());
+    disk_manager_->WritePage(page_id, cur_frame->GetDataMut());
     cur_frame->is_dirty_ = false;
 
     // if (status) {
@@ -451,5 +451,4 @@ namespace sjtu {
     }
     // bpm_latch_->unlock();
   }
-
 } // namespace sjtu

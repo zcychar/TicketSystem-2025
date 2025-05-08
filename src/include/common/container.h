@@ -19,6 +19,10 @@ namespace sjtu {
         hashed_key=(1ll*hashed_key*BASE+key[i])%MOD;
       }
     }
+    friend std::ostream& operator<<(std::ostream& os,const Key &x)  {
+      os<<x.hashed_key;
+      return os;
+    }
   };
 
   struct Comparator {

@@ -9,7 +9,7 @@
 namespace sjtu {
 
 #define B_PLUS_TREE_LEAF_PAGE_TYPE BPlusTreeLeafPage<KeyType, ValueType, KeyComparator, DegradedKeyComparator>
-#define LEAF_PAGE_HEADER_SIZE 16
+#define LEAF_PAGE_HEADER_SIZE 24
 #define LEAF_PAGE_SLOT_CNT ((SJTU_PAGE_SIZE - LEAF_PAGE_HEADER_SIZE) / (sizeof(KeyType) + sizeof(ValueType)))
 
 /**

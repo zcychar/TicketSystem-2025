@@ -31,7 +31,6 @@ namespace sjtu {
     std::fill(data_.begin(), data_.end(), 0);
     pin_count_.store(0);
     is_dirty_ = false;
-    page_id_ = 0;
   }
 
   /**
@@ -94,7 +93,7 @@ namespace sjtu {
 
   void BufferPoolManager::SetNextPageId(page_id_t next_page_id) {
     next_page_id_.store(next_page_id);
-    disk_manager_->IncreaseDiskSpace(next_page_id);
+    disk_manager_->IncreaseDiskSpace(next_page_id+1);
   }
 
 
@@ -115,9 +114,12 @@ namespace sjtu {
    * @return The page ID of the newly allocated page.
    */
   auto BufferPoolManager::NewPage() -> page_id_t {
-    auto id = next_page_id_.fetch_add(1);
-    disk_manager_->IncreaseDiskSpace(id + 1);
-    return id;
+    // auto id = next_page_id_.fetch_add(1);
+    // disk_manager_->IncreaseDiskSpace(id + 1);
+    // return id;
+    ++next_page_id_;
+    disk_manager_->IncreaseDiskSpace(next_page_id_);
+    return next_page_id_;
   }
 
   /**
@@ -427,6 +429,7 @@ namespace sjtu {
     // future.get();
     disk_manager_->WritePage(page_id,cur_frame->GetDataMut());
     cur_frame->is_dirty_ = false;
+
     // if (status) {
     //   bpm_latch_->unlock();
     // }

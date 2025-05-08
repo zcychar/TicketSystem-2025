@@ -52,7 +52,6 @@ void DiskManager::ShutDown() {
     // std::scoped_lock scoped_db_io_latch(db_io_latch_);
     db_io_.close();
   }
-  log_io_.close();
 }
 
 /**
@@ -203,7 +202,6 @@ auto DiskManager::GetNumFlushes() const -> int { return num_flushes_; }
 /**
  * Returns true if the log is currently being flushed
  */
-auto DiskManager::GetFlushState() const -> bool { return flush_log_; }
 
 /**
  * Returns number of Writes made so far

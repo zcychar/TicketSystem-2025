@@ -90,31 +90,15 @@ class DiskManager {
   /** @return the number of deletions */
   auto GetNumDeletes() const -> int;
 
-  /**
-   * Sets the future which is used to check for non-blocking flushes.
-   * @param f the non-blocking flush check
-   */
-  inline void SetFlushLogFuture(std::future<void> *f) { flush_log_f_ = f; }
-
-  /** Checks if the non-blocking flush future was set. */
-  inline auto HasFlushLogFuture() -> bool { return flush_log_f_ != nullptr; }
-
-  /** @brief returns the log file name */
-  inline auto GetLogFileName() const -> std::filesystem::path { return log_name_; }
-
  protected:
   auto GetFileSize(const std::string &file_name) -> int;
-  // stream to write log file
-  std::fstream log_io_;
-  std::filesystem::path log_name_;
+
   // stream to write db file
   std::fstream db_io_;
   std::filesystem::path file_name_;
   int num_flushes_{0};
   int num_writes_{0};
   int num_deletes_{0};
-  bool flush_log_{false};
-  std::future<void> *flush_log_f_{nullptr};
   // With multiple buffer pool instances, need to protect file access
   // std::mutex db_io_latch_;
 

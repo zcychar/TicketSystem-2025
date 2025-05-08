@@ -7,7 +7,7 @@ int main() {
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
   // freopen("input.txt", "r", stdin);
-  // freopen("output.txt", "w", stdout);
+  // freopen("out.txt", "w", stdout);
   int n;
   std::cin >> n;
   auto disk_manager = std::make_unique<sjtu::DiskManager>("zcychar_index");
@@ -18,7 +18,6 @@ int main() {
   sjtu::BPlusTree<sjtu::Key, int, sjtu::Comparator, sjtu::DegradedComparator> tree(
     "test", page_id, bpm, comparator, degraded_comparator);
   std::string opt,index;int value;
-
   for(int i=1;i<=n;++i) {
     std::cin>>opt;
     switch(opt[0]) {
@@ -51,8 +50,10 @@ int main() {
       }
     }
   }
+
   bpm->WritePage(page_id).AsMut<sjtu::BPlusTreeHeaderPage>()->next_page_id_=bpm->GetNextPageId();
   bpm->FlushAllPages();
+
   // delete bpm;
   return 0;
 }

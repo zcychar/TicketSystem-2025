@@ -9,14 +9,14 @@ namespace sjtu {
   constexpr int BASE=19260817;
 
   struct Key {
-    char hashed_key=0;
+    int hashed_key=0;
     int value;
 
     Key(const std::string &key, const int value = -1): value(value) {
+      hashed_key=0;
       auto size = key.size();
       for (int i = 0; i < size; ++i) {
-        hashed_key=(1ll*hashed_key*BASE+(key[i]-'a'+1))%MOD;
-
+        hashed_key=(1ll*hashed_key*BASE+(int)key[i])%MOD;
       }
     }
   };

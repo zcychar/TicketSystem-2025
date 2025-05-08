@@ -116,7 +116,7 @@ class DiskManager {
   bool flush_log_{false};
   std::future<void> *flush_log_f_{nullptr};
   // With multiple buffer pool instances, need to protect file access
-  std::mutex db_io_latch_;
+  // std::mutex db_io_latch_;
 
   /** @brief The number of pages allocated to the DBMS on disk. */
   size_t pages_{0};

@@ -119,7 +119,7 @@ namespace sjtu {
       if (degraded_comparator_(key, page->KeyAt(slot)) < 0) {
         --slot;
       }
-      ctx.read_set_.emplace_back(bpm_->ReadPage(head_page->root_page_id_)) ;
+      ctx.read_set_.emplace_back(bpm_->ReadPage(page->ValueAt(slot))) ;
       cur_page = ctx.read_set_.back().As<BPlusTreePage>();
     }
 

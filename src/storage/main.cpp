@@ -11,7 +11,7 @@ int main() {
   int n;
   std::cin >> n;
   auto disk_manager = std::make_unique<sjtu::DiskManager>("zcychar_index");
-  auto *bpm = new sjtu::BufferPoolManager(2000, disk_manager.get());
+  auto *bpm = new sjtu::BufferPoolManager(4000, disk_manager.get());
   sjtu::page_id_t page_id = bpm->NewPage();
   sjtu::Comparator comparator;
   sjtu::DegradedComparator degraded_comparator;

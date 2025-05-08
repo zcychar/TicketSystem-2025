@@ -15,8 +15,8 @@ namespace sjtu {
  * @param bpm_latch A shared pointer to the buffer pool manager's latch.
  */
 ReadPageGuard::ReadPageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame,
-                             std::shared_ptr<LRUKReplacer> replacer, std::shared_ptr<std::mutex> bpm_latch)
-    : page_id_(page_id), frame_(std::move(frame)), replacer_(std::move(replacer)), bpm_latch_(std::move(bpm_latch)) {
+                             std::shared_ptr<LRUKReplacer> replacer)
+    : page_id_(page_id), frame_(std::move(frame)), replacer_(std::move(replacer)) {
   is_valid_ = true;
 }
 
@@ -41,7 +41,7 @@ ReadPageGuard::ReadPageGuard(ReadPageGuard &&that) noexcept {
   page_id_ = that.page_id_;
   frame_ = std::move(that.frame_);
   replacer_ = std::move(that.replacer_);
-  bpm_latch_ = std::move(that.bpm_latch_);
+  // bpm_latch_ = std::move(that.bpm_latch_);
   is_valid_ = true;
   that.is_valid_ = false;
 }
@@ -69,7 +69,7 @@ auto ReadPageGuard::operator=(ReadPageGuard &&that) noexcept -> ReadPageGuard & 
   page_id_ = that.page_id_;
   frame_ = std::move(that.frame_);
   replacer_ = std::move(that.replacer_);
-  bpm_latch_ = std::move(that.bpm_latch_);
+  // bpm_latch_ = std::move(that.bpm_latch_);
   is_valid_ = true;
   that.is_valid_ = false;
   return *this;
@@ -109,16 +109,16 @@ void ReadPageGuard::Drop() {
   if (!is_valid_) {
     return;
   }
-  frame_->rwlatch_.unlock();
-  bpm_latch_->lock();
+  // frame_->rwlatch_.unlock();
+  // bpm_latch_->lock();
   auto cur_count = frame_->pin_count_.fetch_sub(1);
   if (cur_count == 1) {
     replacer_->SetEvictable(frame_->frame_id_, true);
   }
-  bpm_latch_->unlock();
+  // bpm_latch_->unlock();
   frame_.reset();
   replacer_.reset();
-  bpm_latch_.reset();
+  // bpm_latch_.reset();
   is_valid_ = false;
 }
 
@@ -140,8 +140,8 @@ ReadPageGuard::~ReadPageGuard() { Drop(); }
  * @param bpm_latch A shared pointer to the buffer pool manager's latch.
  */
 WritePageGuard::WritePageGuard(page_id_t page_id, std::shared_ptr<FrameHeader> frame,
-                               std::shared_ptr<LRUKReplacer> replacer, std::shared_ptr<std::mutex> bpm_latch)
-    : page_id_(page_id), frame_(std::move(frame)), replacer_(std::move(replacer)), bpm_latch_(std::move(bpm_latch)) {
+                               std::shared_ptr<LRUKReplacer> replacer)
+    : page_id_(page_id), frame_(std::move(frame)), replacer_(std::move(replacer)) {
   is_valid_ = true;
   frame_->is_dirty_ = true;
 }
@@ -168,7 +168,6 @@ WritePageGuard::WritePageGuard(WritePageGuard &&that) noexcept {
   page_id_ = that.page_id_;
   frame_ = std::move(that.frame_);
   replacer_ = std::move(that.replacer_);
-  bpm_latch_ = std::move(that.bpm_latch_);
   is_valid_ = true;
   that.is_valid_ = false;
 }
@@ -196,7 +195,6 @@ auto WritePageGuard::operator=(WritePageGuard &&that) noexcept -> WritePageGuard
   page_id_ = that.page_id_;
   frame_ = std::move(that.frame_);
   replacer_ = std::move(that.replacer_);
-  bpm_latch_ = std::move(that.bpm_latch_);
   is_valid_ = true;
   that.is_valid_ = false;
   return *this;
@@ -246,16 +244,16 @@ void WritePageGuard::Drop() {
     return;
   }
 
-  frame_->rwlatch_.unlock();
-  bpm_latch_->lock();
+  // frame_->rwlatch_.unlock();
+  // bpm_latch_->lock();
   auto cur_count = frame_->pin_count_.fetch_sub(1);
   if (cur_count == 1) {
     replacer_->SetEvictable(frame_->frame_id_, true);
   }
-  bpm_latch_->unlock();
+  // bpm_latch_->unlock();
   frame_.reset();
   replacer_.reset();
-  bpm_latch_.reset();
+  // bpm_latch_.reset();
   is_valid_ = false;
 }
 

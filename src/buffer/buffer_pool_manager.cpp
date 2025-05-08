@@ -56,11 +56,10 @@ namespace sjtu {
   BufferPoolManager::BufferPoolManager(size_t num_frames, DiskManager *disk_manager, size_t k_dist)
     : num_frames_(num_frames),
       next_page_id_(0),
-      bpm_latch_(std::make_shared<std::mutex>()),
       replacer_(std::make_shared<LRUKReplacer>(num_frames, k_dist)),
-      disk_scheduler_(std::make_unique<DiskScheduler>(disk_manager)) {
+      disk_manager_(disk_manager) {
     // Not strictly necessary...
-    std::scoped_lock latch(*bpm_latch_);
+    // std::scoped_lock latch(*bpm_latch_);
 
     // Initialize the monotonically increasing counter at 0.
     next_page_id_.store(0);
@@ -82,12 +81,22 @@ namespace sjtu {
   /**
    * @brief Destroys the `BufferPoolManager`, freeing up all memory that the buffer pool was using.
    */
-  BufferPoolManager::~BufferPoolManager() = default;
+  BufferPoolManager::~BufferPoolManager()=default;
 
   /**
    * @brief Returns the number of frames that this buffer pool manages.
    */
   auto BufferPoolManager::Size() const -> size_t { return num_frames_; }
+
+  auto BufferPoolManager::GetNextPageId() const -> page_id_t {
+    return next_page_id_.load();
+  }
+
+  void BufferPoolManager::SetNextPageId(page_id_t next_page_id) {
+    next_page_id_.store(next_page_id);
+    disk_manager_->IncreaseDiskSpace(next_page_id);
+  }
+
 
   /**
    * @brief Allocates a new page on disk.
@@ -107,7 +116,7 @@ namespace sjtu {
    */
   auto BufferPoolManager::NewPage() -> page_id_t {
     auto id = next_page_id_.fetch_add(1);
-    disk_scheduler_->IncreaseDiskSpace(id + 1);
+    disk_manager_->IncreaseDiskSpace(id + 1);
     return id;
   }
 
@@ -136,24 +145,24 @@ namespace sjtu {
    * @return `false` if the page exists but could not be deleted, `true` if the page didn't exist or deletion succeeded.
    */
   auto BufferPoolManager::DeletePage(page_id_t page_id) -> bool {
-    bpm_latch_->lock();
+    // bpm_latch_->lock();
     auto curr = page_table_.find(page_id);
     if (curr == page_table_.end()) {
-      bpm_latch_->unlock();
+      // bpm_latch_->unlock();
       return true;
     }
     auto cur_frame = frames_[curr->second];
     auto cur_count = cur_frame->pin_count_.load();
     if (cur_count != 0) {
-      bpm_latch_->unlock();
+      // bpm_latch_->unlock();
       return false;
     }
-    disk_scheduler_->DeallocatePage(page_id);
+    disk_manager_->DeletePage(page_id);
     cur_frame->Reset();
     replacer_->Remove(cur_frame->frame_id_);
     free_frames_.emplace_back(cur_frame->frame_id_);
     page_table_.erase(page_id);
-    bpm_latch_->unlock();
+    // bpm_latch_->unlock();
     return true;
   }
 
@@ -195,16 +204,16 @@ namespace sjtu {
    * returns `std::nullopt`, otherwise returns a `WritePageGuard` ensuring exclusive and mutable access to a page's data.
    */
   auto BufferPoolManager::CheckedWritePage(page_id_t page_id, AccessType access_type) -> std::optional<WritePageGuard> {
-    bpm_latch_->lock();
+    // bpm_latch_->lock();
     auto curr = page_table_.find(page_id);
     if (curr != page_table_.end()) {
       // Case1:page already existed
       replacer_->RecordAccess(curr->second);
       ++frames_[curr->second]->pin_count_;
       replacer_->SetEvictable(curr->second, false);
-      bpm_latch_->unlock();
-      frames_[curr->second]->rwlatch_.lock();
-      return WritePageGuard(page_id, frames_[curr->second], replacer_, bpm_latch_);
+      // bpm_latch_->unlock();
+      // frames_[curr->second]->rwlatch_.lock();
+      return WritePageGuard(page_id, frames_[curr->second], replacer_);
     }
     if (!free_frames_.empty()) {
       // Case2:exist free frame
@@ -212,22 +221,23 @@ namespace sjtu {
       free_frames_.pop_front();
       page_table_.emplace(page_id, cur_frame);
       frames_[cur_frame]->page_id_ = page_id;
-      auto promise = disk_scheduler_->CreatePromise();
-      auto future = promise.get_future();
-      DiskRequest dr = DiskRequest{false, frames_[cur_frame]->GetDataMut(), page_id, std::move(promise)};
-      disk_scheduler_->Schedule(std::move(dr));
-      future.get();
+      // auto promise = disk_scheduler_->CreatePromise();
+      // auto future = promise.get_future();
+      // DiskRequest dr = DiskRequest{false, frames_[cur_frame]->GetDataMut(), page_id, std::move(promise)};
+      // disk_scheduler_->Schedule(std::move(dr));
+      // future.get();
+      disk_manager_->ReadPage( page_id, frames_[cur_frame]->GetDataMut());
       replacer_->RecordAccess(cur_frame);
       ++frames_[cur_frame]->pin_count_;
       replacer_->SetEvictable(cur_frame, false);
-      bpm_latch_->unlock();
-      frames_[cur_frame]->rwlatch_.lock();
-      return WritePageGuard(page_id, frames_[cur_frame], replacer_, bpm_latch_);
+      // bpm_latch_->unlock();
+      // frames_[cur_frame]->rwlatch_.lock();
+      return WritePageGuard(page_id, frames_[cur_frame], replacer_);
     }
     // Case3: need evict
     auto replaced_frame = replacer_->Evict();
     if (!replaced_frame.has_value()) {
-      bpm_latch_->unlock();
+      // bpm_latch_->unlock();
       return std::nullopt;
     }
     auto cur_frame = frames_[replaced_frame.value()];
@@ -239,17 +249,18 @@ namespace sjtu {
     page_table_.emplace(page_id, cur_frame->frame_id_);
 
     cur_frame->page_id_ = page_id;
-    auto promise = disk_scheduler_->CreatePromise();
-    auto future = promise.get_future();
-    DiskRequest dr = DiskRequest{false, cur_frame->GetDataMut(), page_id, std::move(promise)};
-    disk_scheduler_->Schedule(std::move(dr));
-    future.get();
+    // auto promise = disk_scheduler_->CreatePromise();
+    // auto future = promise.get_future();
+    // DiskRequest dr = DiskRequest{false, cur_frame->GetDataMut(), page_id, std::move(promise)};
+    // disk_scheduler_->Schedule(std::move(dr));
+    // future.get();
+    disk_manager_->ReadPage( page_id, cur_frame->GetDataMut());
     replacer_->RecordAccess(cur_frame->frame_id_);
     ++frames_[cur_frame->frame_id_]->pin_count_;
     replacer_->SetEvictable(cur_frame->frame_id_, false);
-    bpm_latch_->unlock();
-    cur_frame->rwlatch_.lock();
-    return WritePageGuard(page_id, cur_frame, replacer_, bpm_latch_);
+    // bpm_latch_->unlock();
+    // cur_frame->rwlatch_.lock();
+    return WritePageGuard(page_id, cur_frame, replacer_);
   }
 
   /**
@@ -276,16 +287,16 @@ namespace sjtu {
    * returns `std::nullopt`, otherwise returns a `ReadPageGuard` ensuring shared and read-only access to a page's data.
    */
   auto BufferPoolManager::CheckedReadPage(page_id_t page_id, AccessType access_type) -> std::optional<ReadPageGuard> {
-    bpm_latch_->lock();
+    // bpm_latch_->lock();
     auto curr = page_table_.find(page_id);
     if (curr != page_table_.end()) {
       // Case1:page already existed
       replacer_->RecordAccess(curr->second);
       ++frames_[curr->second]->pin_count_;
       replacer_->SetEvictable(curr->second, false);
-      bpm_latch_->unlock();
-      frames_[curr->second]->rwlatch_.lock_shared();
-      return ReadPageGuard(page_id, frames_[curr->second], replacer_, bpm_latch_);
+      // bpm_latch_->unlock();
+      // frames_[curr->second]->rwlatch_.lock_shared();
+      return ReadPageGuard(page_id, frames_[curr->second], replacer_);
     }
     if (!free_frames_.empty()) {
       // Case2:exist free frame
@@ -293,23 +304,23 @@ namespace sjtu {
       free_frames_.pop_front();
       page_table_.emplace(page_id, cur_frame);
       frames_[cur_frame]->page_id_ = page_id;
-      auto promise = disk_scheduler_->CreatePromise();
-      auto future = promise.get_future();
-      DiskRequest dr = DiskRequest{false, frames_[cur_frame]->GetDataMut(), page_id, std::move(promise)};
-      disk_scheduler_->Schedule(std::move(dr));
-      future.get();
-
+      // auto promise = disk_scheduler_->CreatePromise();
+      // auto future = promise.get_future();
+      // DiskRequest dr = DiskRequest{false, frames_[cur_frame]->GetDataMut(), page_id, std::move(promise)};
+      // disk_scheduler_->Schedule(std::move(dr));
+      // future.get();
+      disk_manager_->ReadPage(page_id,frames_[cur_frame]->GetDataMut());
       replacer_->RecordAccess(cur_frame);
       ++frames_[cur_frame]->pin_count_;
       replacer_->SetEvictable(cur_frame, false);
-      bpm_latch_->unlock();
-      frames_[cur_frame]->rwlatch_.lock_shared();
-      return ReadPageGuard(page_id, frames_[cur_frame], replacer_, bpm_latch_);
+      // bpm_latch_->unlock();
+      // frames_[cur_frame]->rwlatch_.lock_shared();
+      return ReadPageGuard(page_id, frames_[cur_frame], replacer_);
     }
     // Case3: need evict
     auto replaced_frame = replacer_->Evict();
     if (!replaced_frame.has_value()) {
-      bpm_latch_->unlock();
+      // bpm_latch_->unlock();
       return std::nullopt;
     }
     auto cur_frame = frames_[replaced_frame.value()];
@@ -322,17 +333,18 @@ namespace sjtu {
     page_table_.emplace(page_id, cur_frame->frame_id_);
 
     cur_frame->page_id_ = page_id;
-    auto promise = disk_scheduler_->CreatePromise();
-    auto future = promise.get_future();
-    DiskRequest dr = DiskRequest{false, cur_frame->GetDataMut(), page_id, std::move(promise)};
-    disk_scheduler_->Schedule(std::move(dr));
-    future.get();
+    // auto promise = disk_scheduler_->CreatePromise();
+    // auto future = promise.get_future();
+    // DiskRequest dr = DiskRequest{false, cur_frame->GetDataMut(), page_id, std::move(promise)};
+    // disk_scheduler_->Schedule(std::move(dr));
+    // future.get();
+    disk_manager_->ReadPage(page_id,cur_frame->GetDataMut());
     replacer_->RecordAccess(cur_frame->frame_id_);
     ++frames_[cur_frame->frame_id_]->pin_count_;
     replacer_->SetEvictable(cur_frame->frame_id_, false);
-    bpm_latch_->unlock();
-    cur_frame->rwlatch_.lock_shared();
-    return ReadPageGuard(page_id, cur_frame, replacer_, bpm_latch_);
+    // bpm_latch_->unlock();
+    // cur_frame->rwlatch_.lock_shared();
+    return ReadPageGuard(page_id, cur_frame, replacer_);
   }
 
   /**
@@ -398,24 +410,26 @@ namespace sjtu {
    * @return `false` if the page could not be found in the page table, otherwise `true`.
    */
   auto BufferPoolManager::FlushPage(page_id_t page_id) -> bool {
-    auto status = bpm_latch_->try_lock();
+    // auto status = bpm_latch_->try_lock();
     auto curr = page_table_.find(page_id);
     if (curr == page_table_.end()) {
-      if (status) {
-        bpm_latch_->unlock();
-      }
+      // if (status) {
+      //   bpm_latch_->unlock();
+      // }
       return false;
     }
     auto cur_frame = frames_[curr->second];
-    auto promise = disk_scheduler_->CreatePromise();
-    auto future = promise.get_future();
-    DiskRequest dr = DiskRequest{true, cur_frame->GetDataMut(), page_id, std::move(promise)};
-    disk_scheduler_->Schedule(std::move(dr));
-    future.get();
+    //
+    // auto promise = disk_scheduler_->CreatePromise();
+    // auto future = promise.get_future();
+    // DiskRequest dr = DiskRequest{true, cur_frame->GetDataMut(), page_id, std::move(promise)};
+    // disk_scheduler_->Schedule(std::move(dr));
+    // future.get();
+    disk_manager_->WritePage(page_id,cur_frame->GetDataMut());
     cur_frame->is_dirty_ = false;
-    if (status) {
-      bpm_latch_->unlock();
-    }
+    // if (status) {
+    //   bpm_latch_->unlock();
+    // }
     return true;
   }
 
@@ -428,11 +442,11 @@ namespace sjtu {
    * `CheckedWritePage`, and `FlushPage`, as it will likely be much easier to understand what to do.
    */
   void BufferPoolManager::FlushAllPages() {
-    bpm_latch_->lock();
+    // bpm_latch_->lock();
     for (auto it: page_table_) {
       FlushPage(it.first);
     }
-    bpm_latch_->unlock();
+    // bpm_latch_->unlock();
   }
 
   /**
@@ -459,14 +473,14 @@ namespace sjtu {
    * @return std::optional<size_t> The pin count if the page exists, otherwise `std::nullopt`.
    */
   auto BufferPoolManager::GetPinCount(page_id_t page_id) -> std::optional<size_t> {
-    bpm_latch_->lock();
+    // bpm_latch_->lock();
     auto curr = page_table_.find(page_id);
     if (curr == page_table_.end()) {
-      bpm_latch_->unlock();
+      // bpm_latch_->unlock();
       return std::nullopt;
     }
     auto cur_count = frames_[curr->second]->pin_count_.load();
-    bpm_latch_->unlock();
+    // bpm_latch_->unlock();
     return cur_count;
   }
 } // namespace sjtu

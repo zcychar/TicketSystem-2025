@@ -27,7 +27,7 @@ LRUKReplacer::LRUKReplacer(size_t num_frames, size_t k) : replacer_size_(num_fra
  * @return true if a frame is evicted successfully, false if no frames can be evicted.
  */
 auto LRUKReplacer::Evict() -> std::optional<frame_id_t> {
-  std::unique_lock<std::mutex> lk(latch_);
+  // std::unique_lock<std::mutex> lk(latch_);
   if (curr_size_ == 0) {
     return std::nullopt;
   }
@@ -68,7 +68,7 @@ auto LRUKReplacer::Evict() -> std::optional<frame_id_t> {
  * leaderboard tests.
  */
 void LRUKReplacer::RecordAccess(frame_id_t frame_id, [[maybe_unused]] AccessType access_type) {
-  std::unique_lock<std::mutex> lk(latch_);
+  // std::unique_lock<std::mutex> lk(latch_);
   if (frame_id >= static_cast<frame_id_t>(replacer_size_) || frame_id < 0) {
     throw std::runtime_error("LRU-K_record_access");
   }
@@ -110,7 +110,7 @@ void LRUKReplacer::RecordAccess(frame_id_t frame_id, [[maybe_unused]] AccessType
  * @param set_evictable whether the given frame is evictable or not
  */
 void LRUKReplacer::SetEvictable(frame_id_t frame_id, bool set_evictable) {
-  std::unique_lock<std::mutex> lk(latch_);
+  // std::unique_lock<std::mutex> lk(latch_);
   if (frame_id >= static_cast<frame_id_t>(replacer_size_) || frame_id < 0) {
     throw std::runtime_error("LRU-K_set_evitable");
   }
@@ -159,7 +159,7 @@ void LRUKReplacer::SetEvictable(frame_id_t frame_id, bool set_evictable) {
  * @param frame_id id of frame to be removed
  */
 void LRUKReplacer::Remove(frame_id_t frame_id) {
-  std::unique_lock<std::mutex> lk(latch_);
+  // std::unique_lock<std::mutex> lk(latch_);
   if (frame_id >= static_cast<frame_id_t>(replacer_size_) || frame_id < 0) {
     throw std::runtime_error("LRU-K_remove");
   }

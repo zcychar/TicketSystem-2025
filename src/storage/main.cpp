@@ -17,6 +17,7 @@ int main() {
   sjtu::BPlusTree<sjtu::Key, int, sjtu::Comparator, sjtu::DegradedComparator> tree(
     "test", page_id, bpm, comparator, degraded_comparator);
   std::string opt,index;int value;
+
   for(int i=1;i<=n;++i) {
     std::cin>>opt;
     switch(opt[0]) {
@@ -49,7 +50,8 @@ int main() {
       }
     }
   }
+  bpm->WritePage(page_id).AsMut<sjtu::BPlusTreeHeaderPage>()->next_page_id_=bpm->GetNextPageId();
   bpm->FlushAllPages();
-  delete bpm;
+  // delete bpm;
   return 0;
 }

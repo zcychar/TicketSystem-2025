@@ -96,6 +96,6 @@ namespace sjtu {
     size_t k_;
     std::list<frame_id_t> history_list_;
     std::list<frame_id_t> cache_list_;
-    std::mutex latch_;
+    // std::mutex latch_;
   };
 } // namespace sjtu

@@ -15,7 +15,12 @@ namespace sjtu {
       header_page_id_(header_page_id) {
     WritePageGuard guard = bpm_->WritePage(header_page_id_);
     auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
-    root_page->root_page_id_ = INVALID_PAGE_ID;
+    if(root_page->root_page_id_==0&&root_page->next_page_id_==0) {
+      root_page->root_page_id_ = INVALID_PAGE_ID;
+    }else {
+      buffer_pool_manager->SetNextPageId(root_page->next_page_id_);
+    }
+
   }
 
   /**

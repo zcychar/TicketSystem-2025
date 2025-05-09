@@ -772,14 +772,15 @@ namespace sjtu {
       }
     }
 
-    pair<iterator, bool> insert(const Key& key,const T & value) {
-      return insert(pair(key,value));
+    pair<iterator, bool> insert(const Key &key, const T &value) {
+      return insert(pair(key, value));
     }
-     /* insert an element.
-     * return a pair, the first of the pair is
-     *   the iterator to the new element (or the element that prevented the insertion),
-     *   the second one is true if insert successfully, or false.
-     */
+
+    /* insert an element.
+    * return a pair, the first of the pair is
+    *   the iterator to the new element (or the element that prevented the insertion),
+    *   the second one is true if insert successfully, or false.
+    */
     pair<iterator, bool> insert(const value_type &value) {
       begin_ = nullptr;
       end_ = nullptr;
@@ -843,12 +844,13 @@ namespace sjtu {
       return pair(iterator(pos, this), true);
     }
 
-    void erase( Key& key) {
-      auto it=find(key);
-      if(it!=end()) {
+    void erase(Key &key) {
+      auto it = find(key);
+      if (it != end()) {
         erase(find(key));
       }
     }
+
     /**
      * erase the element at pos.
      *

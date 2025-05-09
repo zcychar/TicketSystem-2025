@@ -315,14 +315,14 @@ namespace sjtu {
     }
 
     vector(vector &&other) noexcept
-    : arr_(other.arr_), size_(other.size_), capacity_(other.capacity_) {
+      : arr_(other.arr_), size_(other.size_), capacity_(other.capacity_) {
       other.arr_ = nullptr;
       other.size_ = other.capacity_ = 0;
     }
 
-    explicit vector(size_t size, const T& value) : size_(size), capacity_(size) {
+    explicit vector(size_t size, const T &value) : size_(size), capacity_(size) {
       if (size > 0) {
-        arr_ = static_cast<T*>(malloc(size * sizeof(T)));
+        arr_ = static_cast<T *>(malloc(size * sizeof(T)));
         if (!arr_) throw std::bad_alloc();
         size_t i = 0;
         try {
@@ -352,6 +352,7 @@ namespace sjtu {
       }
       return *this;
     }
+
     /**
      * Destructor
      */
@@ -612,6 +613,7 @@ namespace sjtu {
       new(arr_ + size_) T(std::move(value)); // 移动构造
       size_++;
     }
+
     /**
      * remove the last element from the end.
      * throw container_is_empty if size() == 0
@@ -624,21 +626,21 @@ namespace sjtu {
       size_--;
     }
 
-    T* data() {
+    T *data() {
       return arr_;
     }
 
-    const T* data()const {
+    const T *data() const {
       return arr_;
     }
 
-    T& back() {
-      return arr_[size_-1];
+    T &back() {
+      return arr_[size_ - 1];
     }
 
     void reserve(size_t n) {
       if (n > capacity_) {
-        T* new_arr = static_cast<T*>(malloc(n * sizeof(T)));
+        T *new_arr = static_cast<T *>(malloc(n * sizeof(T)));
         if (!new_arr) throw std::bad_alloc();
         size_t i = 0;
         try {

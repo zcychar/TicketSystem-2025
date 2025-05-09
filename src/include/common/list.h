@@ -36,7 +36,7 @@ namespace sjtu {
     }
 
     // 赋值运算符重载
-    list<T>& operator=(const list<T>& other) {
+    list<T> &operator=(const list<T> &other) {
       if (this != &other) {
         clear();
         for (auto it = other.cbegin(); it != other.cend(); ++it) {
@@ -99,7 +99,8 @@ namespace sjtu {
        */
       iterator operator--(int) {
         iterator temp = *this;
-        if (ptr == nullptr) { // 处理 end() 情况
+        if (ptr == nullptr) {
+          // 处理 end() 情况
           ptr = dl->tail;
           if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
         } else {
@@ -112,8 +113,9 @@ namespace sjtu {
       /**
        * --iter
        */
-      iterator& operator--() {
-        if (ptr == nullptr) { // 处理 end() 情况
+      iterator &operator--() {
+        if (ptr == nullptr) {
+          // 处理 end() 情况
           ptr = dl->tail;
           if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
         } else {
@@ -209,7 +211,8 @@ namespace sjtu {
 
       const_iterator operator--(int) {
         const_iterator temp = *this;
-        if (ptr == nullptr) { // 处理 end() 情况
+        if (ptr == nullptr) {
+          // 处理 end() 情况
           ptr = dl->tail;
           if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
         } else {
@@ -222,8 +225,9 @@ namespace sjtu {
       /**
        * --iter
        */
-      const_iterator& operator--() {
-        if (ptr == nullptr) { // 处理 end() 情况
+      const_iterator &operator--() {
+        if (ptr == nullptr) {
+          // 处理 end() 情况
           ptr = dl->tail;
           if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
         } else {
@@ -304,13 +308,15 @@ namespace sjtu {
 
       return (next) ? iterator(this, next) : end();
     }
-    T& front() {
+
+    T &front() {
       return head->val;
     }
 
-    T& back() {
+    T &back() {
       return tail->val;
     }
+
     /**
      * the following are operations of double list
      */
@@ -338,7 +344,7 @@ namespace sjtu {
 
     void pop_front() {
       if (head == nullptr) return;
-      node* temp = head;
+      node *temp = head;
       head = head->next;
       if (head) head->prev = nullptr;
       else tail = nullptr; // 链表空时更新 tail
@@ -348,7 +354,7 @@ namespace sjtu {
 
     void pop_back() {
       if (tail == nullptr) return;
-      node* temp = tail;
+      node *temp = tail;
       tail = tail->prev;
       if (tail) tail->next = nullptr;
       else head = nullptr; // 链表空时更新 head
@@ -361,9 +367,11 @@ namespace sjtu {
         return true;
       return false;
     }
+
     int size() {
       return size_;
     }
+
     void clear() {
       node *cur = head;
       while (cur) {

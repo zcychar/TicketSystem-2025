@@ -36,11 +36,11 @@ namespace sjtu {
     }
 
     // 赋值运算符重载
-    list<T> &operator=(const list<T> &other) {
+    list<T>& operator=(const list<T>& other) {
       if (this != &other) {
         clear();
-        for (const_iterator it = other.cbegin(); it != other.cend(); ++it) {
-          insert_tail(*it);
+        for (auto it = other.cbegin(); it != other.cend(); ++it) {
+          push_back(*it); // 正确调用 push_back
         }
       }
       return *this;
@@ -99,25 +99,27 @@ namespace sjtu {
        */
       iterator operator--(int) {
         iterator temp = *this;
-        if (ptr == nullptr)
-          throw std::runtime_error("");
-        if (*this == dl->begin())
-          throw std::runtime_error("");
-        ptr = ptr->prev;
+        if (ptr == nullptr) { // 处理 end() 情况
+          ptr = dl->tail;
+          if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
+        } else {
+          if (ptr == dl->head) throw std::runtime_error("Decrementing begin()");
+          ptr = ptr->prev;
+        }
         return temp;
       }
 
       /**
        * --iter
        */
-      iterator &operator--() {
-        iterator temp = *this;
-
-        if (ptr == nullptr)
-          throw std::runtime_error("");
-        if (*this == dl->begin())
-          throw std::runtime_error("");
-        ptr = ptr->prev;
+      iterator& operator--() {
+        if (ptr == nullptr) { // 处理 end() 情况
+          ptr = dl->tail;
+          if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
+        } else {
+          if (ptr == dl->head) throw std::runtime_error("Decrementing begin()");
+          ptr = ptr->prev;
+        }
         return *this;
       }
 
@@ -207,20 +209,27 @@ namespace sjtu {
 
       const_iterator operator--(int) {
         const_iterator temp = *this;
-        if (ptr == nullptr)
-          throw std::runtime_error("");
-        if (*this == dl->cbegin())
-          throw std::runtime_error("");
-        ptr = ptr->prev;
+        if (ptr == nullptr) { // 处理 end() 情况
+          ptr = dl->tail;
+          if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
+        } else {
+          if (ptr == dl->head) throw std::runtime_error("Decrementing begin()");
+          ptr = ptr->prev;
+        }
         return temp;
       }
 
-      const_iterator &operator--() {
-        if (ptr == nullptr)
-          throw std::runtime_error("");
-        if (*this == dl->cbegin())
-          throw std::runtime_error("");
-        ptr = ptr->prev;
+      /**
+       * --iter
+       */
+      const_iterator& operator--() {
+        if (ptr == nullptr) { // 处理 end() 情况
+          ptr = dl->tail;
+          if (ptr == nullptr) throw std::runtime_error("Decrementing empty list");
+        } else {
+          if (ptr == dl->head) throw std::runtime_error("Decrementing begin()");
+          ptr = ptr->prev;
+        }
         return *this;
       }
 
@@ -328,23 +337,21 @@ namespace sjtu {
     }
 
     void pop_front() {
-      if (head == nullptr)
-        return;
-      node *temp = head;
+      if (head == nullptr) return;
+      node* temp = head;
       head = head->next;
-      if (head != nullptr)
-        head->prev = nullptr;
+      if (head) head->prev = nullptr;
+      else tail = nullptr; // 链表空时更新 tail
       delete temp;
       size_--;
     }
 
     void pop_back() {
-      if (tail == nullptr)
-        return;
-      node *temp = tail;
+      if (tail == nullptr) return;
+      node* temp = tail;
       tail = tail->prev;
-      if (tail != nullptr)
-        tail->next = nullptr;
+      if (tail) tail->next = nullptr;
+      else head = nullptr; // 链表空时更新 head
       delete temp;
       size_--;
     }

@@ -1,4 +1,6 @@
 #pragma once
+
+#include <climits>
 #include <cstddef>
 
 namespace sjtu {
@@ -84,7 +86,7 @@ namespace sjtu {
       // if these two iterators point to different vectors, throw invaild_iterator.
       int operator-(const iterator &rhs) const {
         if (container_ != rhs.container_) {
-          throw std::runtime_error("");
+          throw std::runtime_error("invalid_iterator");
         }
         return static_cast<int>(location_ - rhs.location_);
       }
@@ -206,7 +208,7 @@ namespace sjtu {
       // if these two iterators point to different vectors, throw invaild_iterator.
       int operator-(const const_iterator &rhs) const {
         if (container_ != rhs.container_) {
-          throw std::runtime_error("");
+          throw std::runtime_error("invalid_iterator");
         }
         return static_cast<int>(location_ - rhs.location_);
       }
@@ -294,20 +296,7 @@ namespace sjtu {
      * Constructs
      * At least two: default constructor, copy constructor
      */
-    vector() {
-      capacity_=16;
-      if (capacity_ * sizeof(T) < SJTU_PAGE_SIZE) {
-        capacity_ = (SJTU_PAGE_SIZE - 1) / sizeof(T) + 1;
-      }
-      arr_ = static_cast<T *>(operator new [] (capacity_ * sizeof(T)));
-    };
-
-    vector(int size, const T &value) {
-      reserve(size);
-        for(int i=0;i<size;++i) {
-          push_back(value);
-        }
-    }
+    vector() = default;
 
     vector(const vector &other) {
       if (arr_ != nullptr) {
@@ -326,15 +315,35 @@ namespace sjtu {
     }
 
     vector(vector &&other) noexcept
-      : arr_(other.arr_), size_(other.size_), capacity_(other.capacity_) {
+    : arr_(other.arr_), size_(other.size_), capacity_(other.capacity_) {
       other.arr_ = nullptr;
       other.size_ = other.capacity_ = 0;
+    }
+
+    explicit vector(size_t size, const T& value) : size_(size), capacity_(size) {
+      if (size > 0) {
+        arr_ = static_cast<T*>(malloc(size * sizeof(T)));
+        if (!arr_) throw std::bad_alloc();
+        size_t i = 0;
+        try {
+          for (; i < size; ++i) {
+            new(arr_ + i) T(value); // 拷贝构造元素
+          }
+        } catch (...) {
+          for (size_t j = 0; j < i; ++j) arr_[j].~T();
+          free(arr_);
+          throw;
+        }
+      }
     }
 
     // 移动赋值运算符
     vector &operator=(vector &&other) noexcept {
       if (this != &other) {
-        this->~vector(); // 清理当前资源
+        if (arr_) {
+          for (size_t i = 0; i < size_; ++i) arr_[i].~T();
+          free(arr_);
+        }
         arr_ = other.arr_;
         size_ = other.size_;
         capacity_ = other.capacity_;
@@ -343,7 +352,6 @@ namespace sjtu {
       }
       return *this;
     }
-
     /**
      * Destructor
      */
@@ -386,14 +394,14 @@ namespace sjtu {
      */
     T &at(const size_t &pos) {
       if (pos < 0 || pos >= size_) {
-        throw std::runtime_error("");
+        throw std::runtime_error("index_out_of_bound");
       }
       return arr_[pos];
     }
 
     const T &at(const size_t &pos) const {
       if (pos < 0 || pos >= size_) {
-        throw std::runtime_error("");
+        throw std::runtime_error("index_out_of_bound");
       }
       return arr_[pos];
     }
@@ -406,14 +414,14 @@ namespace sjtu {
      */
     T &operator[](const size_t &pos) {
       if (pos < 0 || pos >= size_) {
-        throw std::runtime_error("");
+        throw std::runtime_error("index_out_of_bound");
       }
       return arr_[pos];
     }
 
     const T &operator[](const size_t &pos) const {
       if (pos < 0 || pos >= size_) {
-        throw std::runtime_error("");
+        throw std::runtime_error("index_out_of_bound");
       }
       return arr_[pos];
     }
@@ -424,7 +432,7 @@ namespace sjtu {
      */
     const T &front() const {
       if (size_ == 0) {
-        throw std::runtime_error("");
+        throw std::runtime_error("container_is_empty");
       }
       return arr_[0];
     }
@@ -435,17 +443,11 @@ namespace sjtu {
      */
     const T &back() const {
       if (size_ == 0) {
-        throw std::runtime_error("");
+        throw std::runtime_error("container_is_empty");
       }
       return arr_[size_ - 1];
     }
 
-    T &back() {
-      if (size_ == 0) {
-        throw std::runtime_error("");
-      }
-      return arr_[size_ - 1];
-    }
     /**
      * returns an iterator to the beginning.
      */
@@ -518,10 +520,7 @@ namespace sjtu {
         double_capacity();
       }
       for (int i = size_ - 1; i >= length; --i) {
-        if (i != size_ - 1) {
-          arr_[i + 1].~T();
-        }
-        new(arr_ + i + 1)T(arr_[i]);
+        new(arr_ + i + 1)T(std::move(arr_[i]));
       }
       arr_[length].~T();
       new(arr_ + length)T(value);
@@ -537,16 +536,13 @@ namespace sjtu {
      */
     iterator insert(const size_t &ind, const T &value) {
       if (ind > size_) {
-        throw std::runtime_error("");
+        throw std::runtime_error("index_out_of_bound");
       }
       if (size_ == capacity_) {
         double_capacity();
       }
       for (int i = size_ - 1; i >= ind; --i) {
-        if (i != size_ - 1) {
-          arr_[i + 1].~T();
-        }
-        new(arr_ + i + 1)T(arr_[i]);
+        new(arr_ + i + 1)T(std::move(arr_[i]));
       }
       arr_[ind].~T();
       new(arr_ + ind)T(value);
@@ -561,9 +557,9 @@ namespace sjtu {
      */
     iterator erase(iterator pos) {
       int length = pos - begin();
+      arr_[length].~T();
       for (int i = length; i < size_ - 1; ++i) {
-        arr_[i].~T();
-        new(arr_ + i)T(arr_[i + 1]);
+        new(arr_ + i)T(std::move(arr_[i + 1]));
       }
       size_--;
       return iterator(&arr_[length], this);
@@ -576,12 +572,11 @@ namespace sjtu {
      */
     iterator erase(const size_t &ind) {
       if (ind >= size_) {
-        throw std::runtime_error("");
+        throw std::runtime_error("index_out_of_bound");
       }
       arr_[ind].~T();
       for (int i = ind; i < size_ - 1; ++i) {
-        arr_[i].~T();
-        new(arr_ + i)T(arr_[i + 1]);
+        new(arr_ + i)T(std::move(arr_[i + 1]));
       }
       size_--;
       return iterator(&arr_[ind], this);
@@ -617,35 +612,52 @@ namespace sjtu {
       new(arr_ + size_) T(std::move(value)); // 移动构造
       size_++;
     }
-
     /**
      * remove the last element from the end.
      * throw container_is_empty if size() == 0
      */
     void pop_back() {
       if (size_ == 0) {
-        throw std::runtime_error("");
+        throw std::runtime_error("container_is_empty");
       }
       arr_[size_ - 1].~T();
       size_--;
     }
 
-    void reserve(int size) {
-      if (capacity_ == 0) {
-        capacity_ = 16;
-        arr_ = (T *) malloc(capacity_ * sizeof(T));
-      }
-      while (capacity_ < size_) {
-        double_capacity();
-      }
-    }
-
-    T *data() {
+    T* data() {
       return arr_;
     }
 
-    const T *data() const {
+    const T* data()const {
       return arr_;
+    }
+
+    T& back() {
+      return arr_[size_-1];
+    }
+
+    void reserve(size_t n) {
+      if (n > capacity_) {
+        T* new_arr = static_cast<T*>(malloc(n * sizeof(T)));
+        if (!new_arr) throw std::bad_alloc();
+        size_t i = 0;
+        try {
+          for (; i < size_; ++i) {
+            new(new_arr + i) T(std::move(arr_[i])); // 移动构造元素
+          }
+        } catch (...) {
+          for (size_t j = 0; j < i; ++j) new_arr[j].~T();
+          free(new_arr);
+          throw;
+        }
+        // 销毁并释放旧内存
+        if (arr_) {
+          for (size_t j = 0; j < size_; ++j) arr_[j].~T();
+          free(arr_);
+        }
+        arr_ = new_arr;
+        capacity_ = n;
+      }
     }
   };
 }

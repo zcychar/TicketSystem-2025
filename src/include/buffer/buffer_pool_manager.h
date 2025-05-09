@@ -96,7 +96,7 @@ namespace sjtu {
    */
   class BufferPoolManager {
   public:
-    BufferPoolManager(size_t num_frames, DiskManager *disk_manager, size_t k_dist = LRUK_REPLACER_K);
+    BufferPoolManager(size_t num_frames, std::shared_ptr<DiskManager> disk_manager, size_t k_dist = LRUK_REPLACER_K);
 
     ~BufferPoolManager();
 
@@ -156,7 +156,7 @@ namespace sjtu {
 
     // /** @brief A pointer to the disk scheduler. */
     // std::unique_ptr<DiskScheduler> disk_scheduler_;
-    std::unique_ptr<DiskManager> disk_manager_;
+    std::shared_ptr<DiskManager> disk_manager_;
 
     /**
      * There will likely be a lot of code duplication between the different modes of accessing a page.

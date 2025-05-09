@@ -1,5 +1,7 @@
 #include "buffer/buffer_pool_manager.h"
 
+#include <utility>
+
 namespace sjtu {
   /**
    * @brief The constructor for a `FrameHeader` that initializes all fields to default values.
@@ -52,11 +54,11 @@ namespace sjtu {
    * @param disk_manager The disk manager.
    * @param k_dist The backward k-distance for the LRU-K replacer.
    */
-  BufferPoolManager::BufferPoolManager(size_t num_frames, DiskManager *disk_manager, size_t k_dist)
+  BufferPoolManager::BufferPoolManager(size_t num_frames,std::shared_ptr<DiskManager>  disk_manager, size_t k_dist)
     : num_frames_(num_frames),
       next_page_id_(0),
       replacer_(std::make_shared<LRUKReplacer>(num_frames, k_dist)),
-      disk_manager_(disk_manager) {
+      disk_manager_(std::move(disk_manager)) {
     // Not strictly necessary...
     // std::scoped_lock latch(*bpm_latch_);
 

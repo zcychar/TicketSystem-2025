@@ -6,12 +6,12 @@ int main() {
   std::ios::sync_with_stdio(false);
   std::cin.tie(nullptr);
   std::cout.tie(nullptr);
-  // freopen("input.txt", "r", stdin);
-  // freopen("output.txt", "w", stdout);
+  // freopen("in1.txt", "r", stdin);
+  // freopen("out1.txt", "w", stdout);
   int n;
   std::cin >> n;
   auto disk_manager = std::make_unique<sjtu::DiskManager>("zcychar_index");
-  auto *bpm = new sjtu::BufferPoolManager(1000, disk_manager.get());
+  auto *bpm = new sjtu::BufferPoolManager(500, disk_manager.get());
   sjtu::page_id_t page_id = bpm->NewPage();
   sjtu::Comparator comparator;
   sjtu::DegradedComparator degraded_comparator;

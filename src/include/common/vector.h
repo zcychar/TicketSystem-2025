@@ -294,16 +294,19 @@ namespace sjtu {
      * Constructs
      * At least two: default constructor, copy constructor
      */
-    vector() = default;
+    vector() {
+      capacity_=16;
+      if (capacity_ * sizeof(T) < SJTU_PAGE_SIZE) {
+        capacity_ = (SJTU_PAGE_SIZE - 1) / sizeof(T) + 1;
+      }
+      arr_ = static_cast<T *>(operator new [] (capacity_ * sizeof(T)));
+    };
 
     vector(int size, const T &value) {
-      size_ = capacity_ = size;
-      arr_ = (T *) malloc(capacity_ * sizeof(T));
-      if (value != T()) {
-        for (int i = 0; i < size_; ++i) {
-          new(arr_ + i) T(value);
+      reserve(size);
+        for(int i=0;i<size;++i) {
+          push_back(value);
         }
-      }
     }
 
     vector(const vector &other) {
@@ -629,7 +632,7 @@ namespace sjtu {
 
     void reserve(int size) {
       if (capacity_ == 0) {
-        capacity_ = 1;
+        capacity_ = 16;
         arr_ = (T *) malloc(capacity_ * sizeof(T));
       }
       while (capacity_ < size_) {

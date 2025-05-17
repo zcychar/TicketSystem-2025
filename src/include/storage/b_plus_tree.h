@@ -61,10 +61,12 @@ namespace sjtu {
     using LeafPage = BPlusTreeLeafPage<KeyType, ValueType, KeyComparator, DegradedKeyComparator>;
 
   public:
-    explicit BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
+    explicit BPlusTree(std::string name,
                        const KeyComparator &comparator, const DegradedKeyComparator &degraded_comparator,
                        int leaf_max_size = LEAF_PAGE_SLOT_CNT,
                        int internal_max_size = INTERNAL_PAGE_SLOT_CNT);
+
+    ~BPlusTree();
 
     // Returns true if this B+ tree has no keys and values.
     auto IsEmpty() const -> bool;

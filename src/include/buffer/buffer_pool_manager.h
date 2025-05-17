@@ -96,7 +96,7 @@ namespace sjtu {
    */
   class BufferPoolManager {
   public:
-    BufferPoolManager(size_t num_frames, std::shared_ptr<DiskManager> disk_manager, size_t k_dist = LRUK_REPLACER_K);
+    BufferPoolManager(size_t num_frames,std::string db_file, size_t k_dist = LRUK_REPLACER_K);
 
     ~BufferPoolManager();
 

@@ -3,25 +3,30 @@
 
 namespace sjtu {
   INDEX_TEMPLATE_ARGUMENTS
-  BPLUSTREE_TYPE::BPlusTree(std::string name, page_id_t header_page_id, BufferPoolManager *buffer_pool_manager,
+  BPLUSTREE_TYPE::BPlusTree(std::string name,
                             const KeyComparator &comparator, const DegradedKeyComparator &degraded_comparator,
                             int leaf_max_size, int internal_max_size)
     : index_name_(std::move(name)),
-      bpm_(buffer_pool_manager),
       comparator_(std::move(comparator)),
       degraded_comparator_(std::move(degraded_comparator)),
       leaf_max_size_(leaf_max_size),
-      internal_max_size_(internal_max_size),
-      header_page_id_(header_page_id) {
+      internal_max_size_(internal_max_size){
+    bpm_ = new sjtu::BufferPoolManager(BUFFER_POOL_SIZE,index_name_);
+    header_page_id_=bpm_->NewPage();
     WritePageGuard guard = bpm_->WritePage(header_page_id_);
     auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
     if (root_page->root_page_id_ == 0) {
       root_page->root_page_id_ = INVALID_PAGE_ID;
     } else {
-      buffer_pool_manager->SetNextPageId(root_page->next_page_id_);
+      bpm_->SetNextPageId(root_page->next_page_id_);
     }
   }
 
+  INDEX_TEMPLATE_ARGUMENTS
+  BPLUSTREE_TYPE::~BPlusTree() {
+    bpm_->WritePage(header_page_id_).AsMut<sjtu::BPlusTreeHeaderPage>()->next_page_id_ = bpm_->GetNextPageId();
+    delete bpm_;
+  }
   /**
    * @brief Helper function to decide whether current b+tree is empty
    * @return Returns true if this B+ tree has no keys and values.

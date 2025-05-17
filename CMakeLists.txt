@@ -20,4 +20,7 @@ add_executable(code
         src/include/common/map.h
         src/include/common/vector.h
         src/include/common/list.h
+        src/management/user.cpp
+        src/include/management/user.h
+        src/include/common/util.h
 )

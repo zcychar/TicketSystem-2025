@@ -62,7 +62,7 @@ namespace sjtu {
 
   public:
     explicit BPlusTree(std::string name,
-                       const KeyComparator &comparator, const DegradedKeyComparator &degraded_comparator,
+                       const KeyComparator &comparator, const DegradedKeyComparator &degraded_comparator = DegradedKeyComparator(),
                        int leaf_max_size = LEAF_PAGE_SLOT_CNT,
                        int internal_max_size = INTERNAL_PAGE_SLOT_CNT);
 

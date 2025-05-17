@@ -12,7 +12,7 @@ int main() {
   std::cin >> n;
   sjtu::Comparator comparator;
   sjtu::DegradedComparator degraded_comparator;
-  sjtu::BPlusTree<sjtu::Key, int, sjtu::Comparator, sjtu::DegradedComparator> tree(
+  sjtu::BPlusTree<sjtu::Key, int, sjtu::Comparator,sjtu::DegradedComparator> tree(
     "zcychar_index",  comparator, degraded_comparator);
   std::string opt, index;
   int value;

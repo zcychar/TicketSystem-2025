@@ -21,5 +21,16 @@ namespace sjtu {
     }
   }
 
+  struct HashComp {
+    int operator()(const hash_t lhs, const hash_t rhs) const {
+      if (lhs != rhs) {
+        if (lhs < rhs) {
+          return -1;
+        }
+        return 1;
+      }
+      return 0;
+    }
+  };
 
 }

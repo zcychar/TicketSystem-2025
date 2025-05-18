@@ -4,13 +4,9 @@
 
 namespace sjtu {
   User::User(std::string &name) {
-    UserInfoComp userinfocomp;
-    user_db_ = new BPlusTree<hash_t, UserInfo, UserInfoComp, UserInfoComp>(
-      name, userinfocomp, userinfocomp);
-  }
-
-  User::~User() {
-    delete user_db_;
+    HashComp comp;
+    user_db_ = std::make_unique<BPlusTree<hash_t, UserInfo, HashComp, HashComp>> (
+      name, comp, comp);
   }
 
   auto User::AddUser(std::string &cur_username, UserInfo &user) -> bool {

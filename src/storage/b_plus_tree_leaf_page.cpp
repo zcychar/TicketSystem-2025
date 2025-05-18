@@ -3,6 +3,7 @@
 
 #include "storage/b_plus_tree_leaf_page.h"
 
+#include "management/train.h"
 #include "management/user.h"
 
 namespace sjtu {
@@ -52,5 +53,6 @@ namespace sjtu {
   INDEX_TEMPLATE_ARGUMENTS
   void B_PLUS_TREE_LEAF_PAGE_TYPE::SetRidAt(int index, const ValueType &value) { rid_array_[index] = value; }
 
- template class BPlusTreeLeafPage<hash_t, UserInfo, UserInfoComp, UserInfoComp>;
+ template class BPlusTreeLeafPage<hash_t, UserInfo, HashComp, HashComp>;
+ template class BPlusTreeLeafPage<hash_t, TrainMeta, HashComp, HashComp>;
 } // namespace sjtu

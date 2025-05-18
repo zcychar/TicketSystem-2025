@@ -72,5 +72,5 @@ namespace sjtu {
   void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetValueAt(int index, const ValueType &value) { page_id_array_[index] = value; }
 
   // valuetype for internalNode should be page id_t
-  template class BPlusTreeInternalPage<hash_t, page_id_t, UserInfoComp, UserInfoComp>;
+  template class BPlusTreeInternalPage<hash_t, page_id_t, HashComp, HashComp>;
 } // namespace sjtu

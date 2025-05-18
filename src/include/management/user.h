@@ -6,39 +6,26 @@
 namespace sjtu {
   struct UserInfo {
     hash_t username_hash = 0;
-    char username[21] = {};
-    char password[31] = {};
-    char name[21] = {};
-    char mailaddr[21] = {};
+    char username[20] = {};
+    char password[30] = {};
+    char name[20] = {};
+    char mailaddr[20] = {};
     num_t privilege = 0;
-  }; //104 bytes
+  }; //100 bytes
 
   struct UserInfoOptional {
     hash_t username_hash = 0;
-    char username[21] = {};
+    char username[20] = {};
     std::optional<std::string> password;
     std::optional<std::string> name;
     std::optional<std::string> mailaddr;
     std::optional<int> privilege;
   }; //Only used in User::ModifyProfile
 
-  struct UserInfoComp {
-    int operator()(const hash_t lhs, const hash_t rhs) const {
-      if (lhs != rhs) {
-        if (lhs < rhs) {
-          return -1;
-        }
-        return 1;
-      }
-      return 0;
-    }
-  };
 
   class User {
   public:
     explicit User(std::string& name);
-
-    ~User();
 
     auto AddUser(std::string &cur_username, UserInfo &user) -> bool;
 
@@ -53,7 +40,7 @@ namespace sjtu {
     auto IsLogged(std::string &username) const -> bool;
 
   private:
-    BPlusTree<hash_t, UserInfo, UserInfoComp, UserInfoComp> * user_db_;
+    std::unique_ptr<BPlusTree<hash_t, UserInfo, HashComp, HashComp>> user_db_;
 
     sjtu::map<hash_t, UserInfo> logged_user_;
   };

@@ -28,4 +28,5 @@ add_executable(code
         src/include/management/management.h
         src/management/management.cpp
         src/include/management/ticket.h
+        src/management/ticket.cpp
 )

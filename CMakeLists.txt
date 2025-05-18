@@ -25,4 +25,7 @@ add_executable(code
         src/management/main.cpp
         src/management/train.cpp
         src/include/management/train.h
+        src/include/management/management.h
+        src/management/management.cpp
+        src/include/management/ticket.h
 )

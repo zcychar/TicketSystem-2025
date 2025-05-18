@@ -21,7 +21,10 @@ namespace sjtu {
     char type;
   }; //5589 bytes, stored as single page
 
-  struct
+  struct StationTrainInfo {
+
+  };
+
 
 
   class Train {

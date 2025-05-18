@@ -51,7 +51,7 @@ namespace sjtu {
    * Once you have a fully working solution (all Gradescope test cases pass), then you can try more interesting things!
    *
    * @param num_frames The size of the buffer pool.
-   * @param disk_manager The disk manager.
+   * @param disk_manager_ The disk manager.
    * @param k_dist The backward k-distance for the LRU-K replacer.
    */
   BufferPoolManager::BufferPoolManager(size_t num_frames,std::string db_file,size_t k_dist)

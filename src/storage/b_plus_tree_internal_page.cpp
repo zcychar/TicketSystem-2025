@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 #include "storage/b_plus_tree_internal_page.h"
-#include "common/container.h"
+#include "management/user.h"
 
 namespace sjtu {
   /*****************************************************************************
@@ -72,5 +72,5 @@ namespace sjtu {
   void B_PLUS_TREE_INTERNAL_PAGE_TYPE::SetValueAt(int index, const ValueType &value) { page_id_array_[index] = value; }
 
   // valuetype for internalNode should be page id_t
-  template class BPlusTreeInternalPage<Key, page_id_t, Comparator, DegradedComparator>;
+  template class BPlusTreeInternalPage<hash_t, page_id_t, UserInfoComp, UserInfoComp>;
 } // namespace sjtu

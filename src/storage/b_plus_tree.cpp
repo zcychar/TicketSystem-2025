@@ -1,5 +1,6 @@
 #include "storage/b_plus_tree.h"
-#include "common/container.h"
+
+#include "management/user.h"
 
 namespace sjtu {
   INDEX_TEMPLATE_ARGUMENTS
@@ -665,5 +666,5 @@ namespace sjtu {
     return bpm_->ReadPage(header_page_id_).As<BPlusTreeHeaderPage>()->root_page_id_;
   }
 
-  template class BPlusTree<Key, int, Comparator, DegradedComparator>;
+  template class BPlusTree<hash_t, UserInfo, UserInfoComp, UserInfoComp>;
 } // namespace sjtu

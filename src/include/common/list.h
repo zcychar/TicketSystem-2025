@@ -1,5 +1,4 @@
 #pragma once
-#include <exception>
 
 namespace sjtu {
   template<class T>

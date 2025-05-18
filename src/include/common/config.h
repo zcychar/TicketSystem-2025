@@ -15,4 +15,8 @@ namespace sjtu {
 
   using frame_id_t = int32_t; // frame id type
   using page_id_t = int32_t; // page id type
+  using hash_t = size_t;
+  using num_t = int16_t;
+
+  using DateRange = std::pair<num_t, num_t>;
 } // namespace sjtu

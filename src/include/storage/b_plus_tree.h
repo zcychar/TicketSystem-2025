@@ -22,7 +22,6 @@
 #include "storage/b_plus_tree_internal_page.h"
 #include "storage/b_plus_tree_leaf_page.h"
 #include "storage/page_guard.h"
-#include "common/container.h"
 #include "common/vector.h"
 
 namespace sjtu {

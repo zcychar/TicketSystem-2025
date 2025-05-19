@@ -4,6 +4,7 @@
 #include "common/util.h"
 
 namespace sjtu {
+  class Ticket;
   struct UserInfo {
     hash_t username_hash = 0;
     char username[20] = {};
@@ -24,6 +25,7 @@ namespace sjtu {
 
 
   class User {
+    friend Ticket;
   public:
     explicit User(std::string& name);
 

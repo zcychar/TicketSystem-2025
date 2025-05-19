@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/config.h"
+#include "common/vector.h"
 
 namespace sjtu {
   inline auto ToHash(std::string &str) -> hash_t {
@@ -12,11 +13,12 @@ namespace sjtu {
     return hash;
   }
 
-  inline void ParseCommand(std::string &command, sjtu::vector<std::string> *parsed_command) {
+  inline void ParseCommand(std::string &command,
+                           sjtu::vector<std::string> *parsed_command) {
     std::istringstream iss(command);
     std::string temp;
     while (!iss.eof()) {
-      iss>>temp;
+      iss >> temp;
       parsed_command->push_back(temp);
     }
   }
@@ -33,4 +35,95 @@ namespace sjtu {
     }
   };
 
-}
+  template<typename T>
+  struct PairCompare {
+    int operator()(T &lhs, T &rhs) {
+      if (lhs.first < rhs.first) {
+        return -1;
+      }
+      if (lhs.first > rhs.first) {
+        return 1;
+      }
+      if (lhs.second < rhs.second) {
+        return -1;
+      }
+      if (lhs.second > rhs.second) {
+        return 1;
+      }
+      return 0;
+    }
+  };
+
+  template<typename T>
+  struct PairDegradedCompare {
+    int operator()(T &lhs, T &rhs) {
+      if (lhs.first < rhs.first) {
+        return -1;
+      }
+      if (lhs.first > rhs.first) {
+        return 1;
+      }
+      return 0;
+    }
+  };
+
+  inline std::string ToDate(num_t date) {
+    const char *month = (date <= 30) ? "06" : (date <= 61) ? "07" : "08";
+    int day = (date <= 30) ? date : (date <= 61) ? date - 30 : date - 61;
+    char buffer[6];
+    snprintf(buffer, sizeof(buffer), "%s-%02d", month, day);
+    return buffer;
+  }
+
+  inline num_t DateToNum(const std::string &date) {
+    int month = std::stoi(date.substr(0, 2));
+    int day = std::stoi(date.substr(3));
+    return (month == 6) ? day : (month == 7) ? 30 + day : 61 + day;
+  }
+
+  inline std::string ToTime(num_t time) {
+    int hour = time / 60;
+    int minute = time % 60;
+    char buffer[6];
+    snprintf(buffer, sizeof(buffer), "%02d:%02d", hour, minute);
+    return buffer;
+  }
+
+  inline num_t TimeToNum(const std::string &time) {
+    return std::stoi(time.substr(0, 2)) * 60 + std::stoi(time.substr(3, 2));
+  }
+
+  inline num_t TimeCost(num_t date_1, num_t time_1, num_t date_2, num_t time_2) {
+    return time_2 - time_1 + (date_2 - date_1) * 1440;
+  }
+
+  struct DateTime {
+    num_t date;
+    num_t time;
+
+    DateTime(num_t d, num_t t): date(d), time(t) {
+    };
+
+    friend std::ostream &operator<<(std::ostream &os, DateTime &date_time) {
+      std::cout << ToDate(date_time.date) << ' ' << ToTime(date_time.time);
+      return os;
+    }
+
+    void operator+=(num_t t) {
+      time += t;
+      if (time > 1440) {
+        time -= 1440;
+        date += 1;
+      }
+    }
+
+    void operator+=(DateTime &dt) {
+      time += dt.time;
+      date += dt.date;
+      if (time > 1440) {
+        time -= 1440;
+        date += 1;
+      }
+    }
+  };
+} // namespace sjtu

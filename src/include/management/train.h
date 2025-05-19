@@ -14,7 +14,7 @@ namespace sjtu {
     num_t stationNum;
     char stations[100][30];
     num_t seatNum;
-    num_t prices[99];
+    int prices[99];
     num_t startTime;
     num_t travelTimes[99];
     num_t stopoverTimes[98];
@@ -32,7 +32,7 @@ namespace sjtu {
       memcpy(stopoverTimes, other.stopoverTimes, (stationNum - 2) * sizeof(num_t));
       return *this;
     }
-  }; //3634 bytes, stored as single page
+  }; //3832 bytes, stored as single page
   //Static info only
 
   struct TrainMeta {
@@ -56,13 +56,11 @@ namespace sjtu {
 
     auto ReleaseTrain(std::string &trainID) -> bool;
 
-
-
   private:
     std::unique_ptr<BufferPoolManager> train_manager_;
 
     std::unique_ptr<BPlusTree<hash_t, TrainMeta, HashComp, HashComp> > train_db_;
 
-    Ticket* ticket_;
+    Ticket *ticket_;
   };
 }

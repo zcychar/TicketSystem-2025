@@ -66,7 +66,7 @@ void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
                           train.arrivingTime,
                           train.trainID_hash,
                           {}};
-        std::strcpy(ticket.trainID, train.trainID);
+        std::strncpy(ticket.trainID, train.trainID,20);
         queue.push(ticket);
       }
       std::cout << queue.size() << '\n';
@@ -96,7 +96,7 @@ void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
                           train.arrivingTime,
                           train.trainID_hash,
                           {}};
-        std::strcpy(ticket.trainID, train.trainID);
+        std::strncpy(ticket.trainID, train.trainID,20);
         queue.push(ticket);
       }
             std::cout << queue.size() << '\n';

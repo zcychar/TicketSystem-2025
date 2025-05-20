@@ -5,11 +5,16 @@
 int main() {
   sjtu::Management management("ticket_system");
   std::string command;
-  sjtu::vector<std::string>parsed_command;
-  while(std::getline(std::cin,command)) {
+  sjtu::vector<std::string> parsed_command;
+  while (std::getline(std::cin, command)) {
+    if (command.empty()) {
+      continue;
+    }
     parsed_command.clear();
-    ParseCommand(command,&parsed_command);
-    management.ProcessLine(parsed_command);
+    ParseCommand(command, &parsed_command);
+    if(!management.ProcessLine(parsed_command)) {
+      break;
+    }
   }
   return 0;
 }

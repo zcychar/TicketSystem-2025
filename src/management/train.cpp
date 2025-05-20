@@ -124,7 +124,7 @@ namespace sjtu {
       train->train_id_hash, {}, 0, 0,
       train->saleDate, cur_time, cur_time
     };
-    std::strcpy(station_train.trainID, train->trainID);
+    std::strncpy(station_train.trainID, train->trainID,20);
     ticket_->station_db_->Insert(station_hash, station_train);
     for (auto i = 1; i < train->stationNum - 1; ++i) {
       str = std::string(train->stations[i]);

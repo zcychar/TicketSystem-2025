@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string.h>
 #include "storage/b_plus_tree.h"
 #include "common/util.h"
 
@@ -10,18 +11,44 @@ namespace sjtu {
     hash_t username_hash = 0;
     char username[20] = {};
     char password[30] = {};
-    char name[20] = {};
-    char mailaddr[20] = {};
+    char name[15] = {};
+    char mailaddr[30] = {};
     num_t privilege = 0;
+
+    UserInfo(std::string &u, std::string &p, std::string &n, std::string &m, std::string &g) {
+      username_hash = ToHash(u);
+      strncpy(username, u.c_str(),20);
+      strncpy(password, p.c_str(),30);
+      strncpy(name, n.c_str(),15);
+      strncpy(mailaddr, m.c_str(),30);
+      privilege = static_cast<num_t>(std::stoi(g));
+    }
   }; //100 bytes
 
   struct UserInfoOptional {
     hash_t username_hash = 0;
     char username[20] = {};
-    std::optional<std::string> password;
-    std::optional<std::string> name;
-    std::optional<std::string> mailaddr;
-    std::optional<int> privilege;
+    std::optional<std::string> password = {};
+    std::optional<std::string> name = {};
+    std::optional<std::string> mailaddr = {};
+    std::optional<int> privilege = {};
+
+    UserInfoOptional(std::string &u, std::string &p, std::string &n, std::string &m, std::string &g) {
+      username_hash = ToHash(u);
+      strcpy(username, u.c_str());
+      if (!p.empty()) {
+        password = p;
+      }
+      if (!n.empty()) {
+        name = n;
+      }
+      if (!m.empty()) {
+        mailaddr = m;
+      }
+      if (!g.empty()) {
+        privilege = static_cast<num_t>(std::stoi(g));
+      }
+    }
   }; //Only used in User::ModifyProfile
 
 

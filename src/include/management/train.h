@@ -26,7 +26,7 @@ namespace sjtu {
       stationNum = other.stationNum;
       seatNum = other.seatNum;
       startTime = other.startTime;
-      strcpy(trainID, other.trainID);
+      strncpy(trainID, other.trainID,20);
       memcpy(prices, other.prices, (stationNum - 1) * sizeof(num_t));
       memcpy(travelTimes, other.travelTimes, (stationNum - 1) * sizeof(num_t));
       memcpy(stopoverTimes, other.stopoverTimes, (stationNum - 2) * sizeof(num_t));

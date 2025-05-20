@@ -13,10 +13,10 @@ namespace sjtu {
     delete user_;
   }
 
-  void Management::ProcessLine(vector<std::string> &line) {
+  bool Management::ProcessLine(vector<std::string> &line) {
     auto size = line.size();
     if (size == 0) {
-      return;
+      return true;;
     }
     std::cout << line[0] << ' ';
     auto cmd = line[1];
@@ -41,47 +41,47 @@ namespace sjtu {
             break;
           }
           case 'm': {
-            m=line[cnt+1];
+            m = line[cnt + 1];
             break;
           }
           case 'g': {
-            g=line[cnt+1];
+            g = line[cnt + 1];
             break;
           }
           case 'i': {
-            i=line[cnt+1];
+            i = line[cnt + 1];
             break;
           }
           case 's': {
-            s=line[cnt+1];
+            s = line[cnt + 1];
             break;
           }
           case 'x': {
-            x=line[cnt+1];
+            x = line[cnt + 1];
             break;
           }
           case 't': {
-            t=line[cnt+1];
+            t = line[cnt + 1];
             break;
           }
           case 'o': {
-            o=line[cnt+1];
+            o = line[cnt + 1];
             break;
           }
           case 'd': {
-            d=line[cnt+1];
+            d = line[cnt + 1];
             break;
           }
           case 'y': {
-            y=line[cnt+1];
+            y = line[cnt + 1];
             break;
           }
           case 'q': {
-            q=line[cnt+1];
+            q = line[cnt + 1];
             break;
           }
           case 'f': {
-            f=line[cnt+1];
+            f = line[cnt + 1];
             break;
           }
           default: {
@@ -92,23 +92,21 @@ namespace sjtu {
       }
     }
     if (cmd == "add_user") {
-      UserInfo user_info{ToHash(u),{},{},{},{},{}};
-      std::strcpy(user_info.username,u.c_str());
-      std::strcpy(user_info.password,u.c_str());
-      std::strcpy(user_info.name,u.c_str());
-      std::strcpy(user_info.mailaddr,u.c_str());
-      user_info.privilege=static_cast<num_t>(std::stoi(p));
-      user_->AddUser(c,user_info);
+      UserInfo user_info(u, p, n, m, g);
+      user_->AddUser(c, user_info);
     } else if (cmd == "login") {
-
+      user_->Login(u, p);
     } else if (cmd == "logout") {
-
+      user_->Logout(u);
     } else if (cmd == "query_profile") {
-
+      user_->QueryProfile(c, u);
     } else if (cmd == "modify_profile") {
-
-    } else {
-      return;
+      UserInfoOptional user_info(u, p, n, m, g);
+      user_->ModifyProfile(c, user_info);
+    } else if (cmd == "exit") {
+      std::cout << "bye";
+      return false;
     }
+    return true;
   }
 }

@@ -11,7 +11,7 @@ namespace sjtu {
 
     ~Management();
 
-    void ProcessLine(vector<std::string>& line);
+    auto ProcessLine(vector<std::string> &line) -> bool;
 
   private:
     User *user_;

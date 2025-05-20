@@ -2,6 +2,7 @@
 
 #include "common/config.h"
 #include "common/vector.h"
+#include <iostream>
 
 namespace sjtu {
   inline auto ToHash(std::string &str) -> hash_t {
@@ -37,7 +38,7 @@ namespace sjtu {
 
   template<typename T>
   struct PairCompare {
-    int operator()(T &lhs, T &rhs) {
+    int operator()(const T &lhs,const T &rhs) {
       if (lhs.first < rhs.first) {
         return -1;
       }
@@ -56,7 +57,7 @@ namespace sjtu {
 
   template<typename T>
   struct PairDegradedCompare {
-    int operator()(T &lhs, T &rhs) {
+    int operator()(const T &lhs,const T &rhs) {
       if (lhs.first < rhs.first) {
         return -1;
       }
@@ -124,6 +125,10 @@ namespace sjtu {
         time -= 1440;
         date += 1;
       }
+    }
+
+    num_t operator-(DateTime& rhs){
+      return (date-rhs.date)*1440+(time-rhs.time);
     }
   };
 } // namespace sjtu

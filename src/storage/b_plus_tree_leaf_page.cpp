@@ -54,5 +54,10 @@ namespace sjtu {
   void B_PLUS_TREE_LEAF_PAGE_TYPE::SetRidAt(int index, const ValueType &value) { rid_array_[index] = value; }
 
  template class BPlusTreeLeafPage<hash_t, UserInfo, HashComp, HashComp>;
+ template class BPlusTreeLeafPage<TrainDate, TicketDateInfo, PairCompare<TrainDate>, PairDegradedCompare<TrainDate>>;
+ template class BPlusTreeLeafPage<TrainDate, PendingInfo, PairCompare<TrainDate>, PairCompare<TrainDate> >;
+ template class BPlusTreeLeafPage<hash_t, StationTrainInfo, HashComp, HashComp>;
+ template class BPlusTreeLeafPage<OrderTime, OrderInfo, PairCompare<OrderTime>, PairDegradedCompare<OrderTime>>;
+
  template class BPlusTreeLeafPage<hash_t, TrainMeta, HashComp, HashComp>;
 } // namespace sjtu

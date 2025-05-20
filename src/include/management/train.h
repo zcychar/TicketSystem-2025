@@ -44,7 +44,7 @@ namespace sjtu {
 
   class Train {
   public:
-    explicit Train(std::string &name);
+    explicit Train(std::string &name, Ticket* ticket);
 
     ~Train();
 

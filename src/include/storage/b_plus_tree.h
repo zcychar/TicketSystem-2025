@@ -87,54 +87,6 @@ namespace sjtu {
     // Return the page id of the root node
     auto GetRootPageId() -> page_id_t;
 
-    void Print(BufferPoolManager *bpm) {
-      auto root_page_id = GetRootPageId();
-      if (root_page_id != INVALID_PAGE_ID) {
-        auto guard = bpm->ReadPage(root_page_id);
-        PrintTree(guard.GetPageId(), guard.template As<BPlusTreePage>());
-      }
-    }
-
-    void PrintTree(page_id_t page_id, const BPlusTreePage *page) {
-      if (page->IsLeafPage()) {
-        auto *leaf = reinterpret_cast<const LeafPage *>(page);
-        std::cout << "Leaf Page: " << page_id << "\tNext: " << leaf->GetNextPageId() << std::endl;
-
-        // Print the contents of the leaf page.
-        std::cout << "Contents: ";
-        for (int i = 0; i < leaf->GetSize(); i++) {
-          std::cout << leaf->KeyAt(i);
-          if ((i + 1) < leaf->GetSize()) {
-            std::cout << ", ";
-          }
-        }
-        std::cout << std::endl;
-        std::cout << std::endl;
-      } else {
-        auto *internal = reinterpret_cast<const InternalPage *>(page);
-        std::cout << "Internal Page: " << page_id << std::endl;
-
-        // Print the contents of the internal page.
-        std::cout << "Contents: ";
-        for (int i = 0; i < internal->GetSize(); i++) {
-          if (i == 0) {
-            std::cout << internal->ValueAt(i);
-          } else {
-            std::cout << internal->KeyAt(i) << ": " << internal->ValueAt(i);
-          }
-          if ((i + 1) < internal->GetSize()) {
-            std::cout << ", ";
-          }
-        }
-        std::cout << std::endl;
-        std::cout << std::endl;
-        for (int i = 0; i < internal->GetSize(); i++) {
-          auto guard = bpm_->ReadPage(internal->ValueAt(i));
-          PrintTree(guard.GetPageId(), guard.template As<BPlusTreePage>());
-        }
-      }
-    }
-
   private:
     // member variable
     std::string index_name_;

@@ -5,6 +5,7 @@
 
 namespace sjtu {
   class Ticket;
+
   struct UserInfo {
     hash_t username_hash = 0;
     char username[20] = {};
@@ -26,23 +27,24 @@ namespace sjtu {
 
   class User {
     friend Ticket;
+
   public:
-    explicit User(std::string& name);
+    explicit User(std::string &name);
 
-    auto AddUser(std::string &cur_username, UserInfo &user) -> bool;
+    void AddUser(std::string &cur_username, UserInfo &user);
 
-    auto Login(std::string &username, std::string &password) -> bool;
+    void Login(std::string &username, std::string &password);
 
-    auto Logout(std::string &name) -> bool;
+    void Logout(std::string &name);
 
-    auto QueryProfile(std::string &cur_username, std::string &username) -> std::optional<UserInfo>;
+    void QueryProfile(std::string &cur_username, std::string &username);
 
-    auto ModifyProfile(std::string &cur_username, UserInfoOptional &user) -> std::optional<UserInfo>;
+    void ModifyProfile(std::string &cur_username, UserInfoOptional &user);
 
     auto IsLogged(std::string &username) const -> bool;
 
   private:
-    std::unique_ptr<BPlusTree<hash_t, UserInfo, HashComp, HashComp>> user_db_;
+    std::unique_ptr<BPlusTree<hash_t, UserInfo, HashComp, HashComp> > user_db_;
 
     sjtu::map<hash_t, UserInfo> logged_user_;
   };

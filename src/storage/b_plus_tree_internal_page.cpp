@@ -2,6 +2,8 @@
 #include <sstream>
 #include "storage/b_plus_tree_internal_page.h"
 #include "management/user.h"
+#include "management/train.h"
+#include "management/ticket.h"
 
 namespace sjtu {
   /*****************************************************************************
@@ -73,4 +75,8 @@ namespace sjtu {
 
   // valuetype for internalNode should be page id_t
   template class BPlusTreeInternalPage<hash_t, page_id_t, HashComp, HashComp>;
+  template class BPlusTreeInternalPage<TrainDate, page_id_t, PairCompare<TrainDate>, PairDegradedCompare<TrainDate> >;
+  template class BPlusTreeInternalPage<OrderTime, page_id_t, PairCompare<OrderTime>, PairDegradedCompare<OrderTime> >;
+  template class BPlusTreeInternalPage<TrainDate, page_id_t, PairCompare<TrainDate>, PairCompare<TrainDate> >;
+
 } // namespace sjtu

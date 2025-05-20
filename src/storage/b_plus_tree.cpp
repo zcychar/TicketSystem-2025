@@ -669,5 +669,11 @@ namespace sjtu {
   }
 
   template class BPlusTree<hash_t, UserInfo, HashComp, HashComp>;
-  template class BPlusTree<hash_t, TrainMeta,  HashComp,  HashComp>;
+  template class BPlusTree<hash_t, TrainMeta, HashComp, HashComp>;
+
+  template class BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>, PairDegradedCompare<TrainDate> >;
+  template class BPlusTree<OrderTime, OrderInfo, PairCompare<OrderTime>, PairDegradedCompare<OrderTime> >;
+  template class BPlusTree<TrainDate, PendingInfo, PairCompare<TrainDate>, PairCompare<TrainDate> >;
+  template class BPlusTree<hash_t, StationTrainInfo, HashComp, HashComp>;
+
 } // namespace sjtu

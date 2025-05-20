@@ -106,6 +106,15 @@ namespace sjtu {
     } else if (cmd == "exit") {
       std::cout << "bye";
       return false;
+    }else if(cmd=="add_train") {
+        TrainInfo train_info(i,n,m,s,p,x,t,o,d,y);
+        train_->AddTrain(train_info);
+    }else if(cmd=="delete_train") {
+        train_->DeleteTrain(i);
+    }else if(cmd=="release_train") {
+        train_->ReleaseTrain(i);
+    }else if(cmd=="query_train") {
+        train_->QueryTrain(i,DateToNum(d));
     }
     return true;
   }

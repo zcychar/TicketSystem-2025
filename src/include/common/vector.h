@@ -298,9 +298,7 @@ namespace sjtu {
      * Constructs
      * At least two: default constructor, copy constructor
      */
-    vector() {
-
-    };
+    vector() = default;
 
     vector(const vector &other) {
       if (arr_ != nullptr) {

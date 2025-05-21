@@ -5,17 +5,17 @@
 #include "management/train.h"
 
 namespace sjtu {
-  class Management {
-  public:
-    explicit Management(std::string name);
+class Management {
+public:
+  explicit Management(std::string name);
 
-    ~Management();
+  ~Management();
 
-    auto ProcessLine(vector<std::string> &line) -> bool;
+  auto ProcessLine(vector<std::string> &line) -> bool;
 
-  private:
-    User *user_;
-    Ticket *ticket_;
-    Train *train_;
-  };
+private:
+  User *user_;
+  Ticket *ticket_;
+  Train *train_;
+};
 }

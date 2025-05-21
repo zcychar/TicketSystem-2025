@@ -12,7 +12,7 @@ int main() {
     }
     parsed_command.clear();
     ParseCommand(command, &parsed_command);
-    if(!management.ProcessLine(parsed_command)) {
+    if (!management.ProcessLine(parsed_command)) {
       break;
     }
   }

@@ -3,6 +3,7 @@
 #include "common/util.h"
 
 int main() {
+  // freopen("../testcases/5.in","r",stdin);
   sjtu::Management management("ticket_system");
   std::string command;
   sjtu::vector<std::string> parsed_command;

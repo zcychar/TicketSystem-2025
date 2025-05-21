@@ -87,9 +87,6 @@ template class BPlusTreeInternalPage<
   TrainDate, page_id_t, PairCompare<TrainDate>, PairDegradedCompare<
     TrainDate> >;
 template class BPlusTreeInternalPage<
-  OrderTime, page_id_t, PairCompare<OrderTime>, PairDegradedCompare<
-    OrderTime> >;
-template class BPlusTreeInternalPage<
   TrainDateOrder, page_id_t,TDOCompare, TDODegradedCompare >;
 template class BPlusTreeInternalPage<
   StationTrain, page_id_t, PairCompare<StationTrain>, PairDegradedCompare<StationTrain> >;

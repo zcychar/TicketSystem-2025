@@ -90,7 +90,14 @@ inline std::string ToDate(num_t date) {
 inline num_t DateToNum(const std::string &date) {
   int month = std::stoi(date.substr(0, 2));
   int day = std::stoi(date.substr(3));
-  return (month == 6) ? day : (month == 7) ? 30 + day : 61 + day;
+  if(month==6) {
+    return day;
+  }else if(month==7) {
+    return day+30;
+  }else if(month==8) {
+    return day+61;
+  }
+  return -1;
 }
 
 inline std::string ToTime(num_t time) {
@@ -190,14 +197,6 @@ inline void InsertNum(num_t time[], std::string &t) {
   }
 }
 
-inline void InsertNum(int time[], std::string &t) {
-  std::istringstream iss(t);
-  std::string str;
-  int cnt = 0;
-  while (getline(iss, str, '|')) {
-    time[cnt++] = std::stoi(str);
-  }
-}
 
 inline auto ToTimeStamp(std::string &t) -> int {
   return std::stoi(t.substr(1,t.size()-2));

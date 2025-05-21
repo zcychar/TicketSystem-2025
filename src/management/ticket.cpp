@@ -73,7 +73,7 @@ void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
 
         ticket_db_->GetValue(
             TrainDate(train.trainID_hash,
-                      date - from_vector[0].leavingTime.date),
+                      date - from_vector[it->second].leavingTime.date),
             &ticketNum);
         auto t_num = ticketNum[0].getSeat(from_vector[it->second].station_index,
                                           train.station_index);
@@ -102,7 +102,7 @@ void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
     }
   } else {
     sjtu::priority_queue<TicketComp, SortByCost> queue;
-    for (auto train : to_vector) {
+    for (auto &train : to_vector) {
       auto it = train_map.find(train.trainID_hash);
       if (it != train_map.end()) {
         if (from_vector[it->second].station_index >= train.station_index) {
@@ -111,8 +111,9 @@ void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
         vector<TicketDateInfo> ticketNum;
         ticket_db_->GetValue(
             TrainDate(train.trainID_hash,
-                      date - from_vector[0].leavingTime.date),
+                      date - from_vector[it->second].leavingTime.date),
             &ticketNum);
+
         auto t_num = ticketNum[0].getSeat(from_vector[it->second].station_index,
                                           train.station_index);
         TicketComp ticket(

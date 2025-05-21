@@ -58,15 +58,15 @@ struct TDODegradedCompare {
 
 struct TicketDateInfo {
   num_t stationNum = 0;
-  num_t seatNum[99] = {};
+  int seatNum[99] = {};
 
-  TicketDateInfo(num_t seatnum, num_t stationnum) : stationNum(stationnum) {
+  TicketDateInfo(int seatnum, num_t stationnum) : stationNum(stationnum) {
     for (int i = 0; i < stationNum - 1; ++i) {
       seatNum[i] = seatnum;
     }
   }
 
-  num_t getSeat(num_t from, num_t to) {
+  int getSeat(num_t from, num_t to) {
     auto minm = seatNum[from];
     for (int i = from + 1; i < to; ++i) {
       minm = std::min(seatNum[i], minm);
@@ -74,7 +74,7 @@ struct TicketDateInfo {
     return minm;
   }
 
-  void changeSeat(num_t from, num_t to, num_t fig) {
+  void changeSeat(num_t from, num_t to, int fig) {
     for (int i = from; i < to; ++i) {
       seatNum[i] += fig;
     }
@@ -92,15 +92,16 @@ struct OrderInfo {
   DateTime leavingTime;
   DateTime arrivingTime;
   int price;
-  num_t num;
+  int num;
+  num_t init_date;
 
   OrderInfo(int stamp, TicketStatus s, const char ID[], const char f[],
             const char t[], num_t index_1, num_t index_2, DateTime &l_time,
-            DateTime &a_time, int p, num_t n): timestamp(stamp), status(s),
+            DateTime &a_time, int p, int n,num_t init_d): timestamp(stamp), status(s),
                                                leavingTime(l_time),
                                                arrivingTime(a_time), price(p),
                                                num(n), from_index(index_1),
-                                               to_index(index_2) {
+                                               to_index(index_2),init_date(init_d) {
     strncpy(trainID, ID, 20);
     strncpy(from, f, 30);
     strncpy(to, t, 30);
@@ -113,7 +114,8 @@ struct PendingInfo {
   hash_t trainID_hash;
   num_t from_index;
   num_t to_index;
-  num_t num;
+  int num;
+  num_t init_date;
 }; // 48 bytes
 // searched by train_ID,should check avaibility then change OrderInfo::status
 
@@ -164,6 +166,7 @@ struct StationTrainInfo {
 struct TicketComp {
   num_t time;
   int cost;
+  int ticket_num;
   num_t station_index_1;
   num_t station_index_2;
   DateTime leavingTime;
@@ -171,10 +174,10 @@ struct TicketComp {
   hash_t trainID_hash;
   char trainID[20]{};
 
-  TicketComp(num_t time, int cost, num_t index_1, num_t index_2,
+  TicketComp(num_t time, int cost,int t_num, num_t index_1, num_t index_2,
              DateTime l_time, DateTime a_time, hash_t hash,
              char ID[]): time(time),
-                         cost(cost), station_index_1(index_1),
+                         cost(cost),ticket_num(t_num), station_index_1(index_1),
                          station_index_2(index_2), leavingTime(l_time),
                          arrivingTime(a_time), trainID_hash(hash) {
     strncpy(trainID, ID, 20);
@@ -201,50 +204,50 @@ struct TicketTransComp {
 struct SortByTime {
   bool operator()(TicketComp &lhs, TicketComp &rhs) {
     if (lhs.time != rhs.time) {
-      return lhs.time < rhs.time;
+      return lhs.time > rhs.time;
     }
-    return strcmp(lhs.trainID, rhs.trainID) < 0;
+    return strcmp(lhs.trainID, rhs.trainID) > 0;
   }
 };
 
 struct SortByCost {
   bool operator()(TicketComp &lhs, TicketComp &rhs) {
     if (lhs.cost != rhs.cost) {
-      return lhs.cost < rhs.cost;
+      return lhs.cost > rhs.cost;
     }
-    return strcmp(lhs.trainID, rhs.trainID) < 0;
+    return strcmp(lhs.trainID, rhs.trainID) > 0;
   }
 };
 
 struct TranSortByTime {
   bool operator()(TicketTransComp &lhs, TicketTransComp &rhs) {
     if (lhs.time != rhs.time) {
-      return lhs.time < rhs.time;
+      return lhs.time > rhs.time;
     }
     if (lhs.cost != rhs.cost) {
-      return lhs.cost < rhs.cost;
+      return lhs.cost > rhs.cost;
     }
     auto flag_1 = strcmp(lhs.ticket_1.trainID, rhs.ticket_1.trainID);
     if (flag_1 != 0) {
-      return flag_1 < 0;
+      return flag_1 > 0;
     }
-    return strcmp(lhs.ticket_2.trainID, rhs.ticket_2.trainID) < 0;
+    return strcmp(lhs.ticket_2.trainID, rhs.ticket_2.trainID) > 0;
   }
 };
 
 struct TranSortByCost {
   bool operator()(TicketTransComp &lhs, TicketTransComp &rhs) {
     if (lhs.cost != rhs.cost) {
-      return lhs.cost < rhs.cost;
+      return lhs.cost > rhs.cost;
     }
     if (lhs.time != rhs.time) {
-      return lhs.time < rhs.time;
+      return lhs.time > rhs.time;
     }
     auto flag_1 = strcmp(lhs.ticket_1.trainID, rhs.ticket_1.trainID);
     if (flag_1 != 0) {
-      return flag_1 < 0;
+      return flag_1 > 0;
     }
-    return strcmp(lhs.ticket_2.trainID, rhs.ticket_2.trainID) < 0;
+    return strcmp(lhs.ticket_2.trainID, rhs.ticket_2.trainID) > 0;
   }
 };
 
@@ -269,7 +272,7 @@ public:
 
   void BuyTicket(int timestamp, std::string &username, std::string &trainID,
                  num_t date,
-                 num_t num, std::string &from, std::string &to,
+                 int num, std::string &from, std::string &to,
                  std::string queue = "false");
 
   void QueryOrder(std::string &username);
@@ -277,6 +280,7 @@ public:
   void RefundTicket(std::string &username, int n = 1);
 
 private:
+  //the date of train start
   std::unique_ptr<BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>,
                             PairDegradedCompare<TrainDate> > >
   ticket_db_;
@@ -285,6 +289,7 @@ private:
                             PairDegradedCompare<OrderTime> > >
   order_db_;
 
+  //also should be the date train start
   std::unique_ptr<BPlusTree<TrainDateOrder, PendingInfo, TDOCompare,
                             TDODegradedCompare > >
   pending_db_;

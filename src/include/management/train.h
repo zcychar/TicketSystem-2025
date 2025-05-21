@@ -11,17 +11,18 @@ namespace sjtu {
 class Ticket;
 
 struct TrainInfo {
+
   hash_t train_id_hash;
-  char trainID[20]{};
   num_t stationNum;
-  char stations[100][30]{};
-  num_t seatNum;
-  int prices[99]{};
+  int seatNum;
   num_t startTime;
   num_t travelTimes[99]{};
   num_t stopoverTimes[98]{};
+  int prices[99]{};
   DateRange saleDate;
   char type;
+  char trainID[20]{};
+  char stations[100][30]{};
 
   TrainInfo(std::string &i, std::string &n, std::string &m, std::string &s,
             std::string &p, std::string &x, std::string &t, std::string &o,
@@ -29,7 +30,7 @@ struct TrainInfo {
     train_id_hash = ToHash(i);
     strncpy(trainID, i.c_str(), 20);
     stationNum = static_cast<num_t>(std::stoi(n));
-    seatNum = static_cast<num_t>(std::stoi(m));
+    seatNum = std::stoi(m);
     startTime = TimeToNum(x);
     type = y[0];
     InsertStations(stations, s);

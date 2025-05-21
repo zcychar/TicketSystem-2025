@@ -114,7 +114,7 @@ struct DateTime {
   num_t time = 0;
 
   DateTime(num_t d, num_t t): date(d), time(t) {
-    while (time > 1440) {
+    while (time >= 1440) {
       time -= 1440;
       date += 1;
     }
@@ -127,7 +127,7 @@ struct DateTime {
 
   void operator+=(num_t t) {
     time += t;
-    while (time > 1440) {
+    while (time >= 1440) {
       time -= 1440;
       date += 1;
     }
@@ -136,7 +136,7 @@ struct DateTime {
   void operator+=(DateTime &dt) {
     time += dt.time;
     date += dt.date;
-    while (time > 1440) {
+    while (time >= 1440) {
       time -= 1440;
       date += 1;
     }

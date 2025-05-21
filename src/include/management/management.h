@@ -13,6 +13,8 @@ public:
 
   auto ProcessLine(vector<std::string> &line) -> bool;
 
+  void Clean(std::string name);
+
 private:
   User *user_;
   Ticket *ticket_;

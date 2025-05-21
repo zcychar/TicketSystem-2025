@@ -13,7 +13,7 @@ Management::~Management() {
   delete user_;
 }
 
-bool Management::ProcessLine(vector<std::string>& line) {
+bool Management::ProcessLine(vector<std::string> &line) {
   auto size = line.size();
   if (size == 0) {
     return true;;
@@ -123,9 +123,10 @@ bool Management::ProcessLine(vector<std::string>& line) {
     }
   } else if (cmd == "buy_ticket") {
     if (q.empty()) {
-      ticket_->BuyTicket(u, i, DateToNum(d), std::stoi(n), f, t);
+      ticket_->BuyTicket(ToTimeStamp(line[0]),u, i, DateToNum(d), std::stoi(n), f, t);
     } else {
-      ticket_->BuyTicket(u, i, DateToNum(d), std::stoi(n), f, t, q);
+      ticket_->BuyTicket(ToTimeStamp(line[0]), u, i, DateToNum(d), std::stoi(n),
+                         f, t, q);
     }
   } else if (cmd == "query_order") {
     ticket_->QueryOrder(u);
@@ -141,8 +142,27 @@ bool Management::ProcessLine(vector<std::string>& line) {
     } else {
       ticket_->QueryTransfer(train_, s, t, DateToNum(d), p);
     }
-  } else if (cmd == "clear") {
+  } else if (cmd == "clean") {
+    Clean("ticket_system");
+    std::cout<<"0\n";
   }
   return true;
 }
+
+void Management::Clean(std::string name) {
+  delete train_;
+  delete ticket_;
+  delete user_;
+  std::filesystem::remove("ticket_system_db");
+  std::filesystem::remove("ticket_system_order_db");
+  std::filesystem::remove("ticket_system_pending_db");
+  std::filesystem::remove("ticket_system_station_db");
+  std::filesystem::remove("ticket_system_ticket_db");
+  std::filesystem::remove("train_db");
+  std::filesystem::remove("train_manager");
+  user_ = new User(name);
+  ticket_ = new Ticket(name, user_);
+  train_ = new Train(name, ticket_);
+}
+
 }

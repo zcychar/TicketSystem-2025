@@ -11,16 +11,16 @@
 #include "disk/disk_manager.h"
 
 namespace sjtu {
-  static char *buffer_used;
+static char *buffer_used;
 
-  /**
-   * Constructor: open/create a single database file & log file
-   * @input db_file: database file name
-   */
-  DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_file) {
-    db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
-    // directory or file does not exist
-    if (!db_io_.is_open()) {
+/**
+ * Constructor: open/create a single database file & log file
+ * @input db_file: database file name
+ */
+DiskManager::DiskManager(const std::filesystem::path &db_file) : file_name_(db_file) {
+  db_io_.open(db_file, std::ios::binary | std::ios::in | std::ios::out);
+  // directory or file does not exist
+  if (!db_io_.is_open()) {
       db_io_.clear();
       // create a new file
       db_io_.open(db_file, std::ios::binary | std::ios::trunc | std::ios::out | std::ios::in);

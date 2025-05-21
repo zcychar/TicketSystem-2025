@@ -700,7 +700,9 @@ template class BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>,
                          PairDegradedCompare<TrainDate> >;
 template class BPlusTree<OrderTime, OrderInfo, PairCompare<OrderTime>,
                          PairDegradedCompare<OrderTime> >;
-template class BPlusTree<TrainDate, PendingInfo, PairCompare<TrainDate>,
-                         PairCompare<TrainDate> >;
-template class BPlusTree<hash_t, StationTrainInfo, HashComp, HashComp>;
+template class BPlusTree<TrainDateOrder, PendingInfo, TDOCompare,
+                         TDODegradedCompare >;
+template class BPlusTree<StationTrain, StationTrainInfo, PairCompare<StationTrain>,
+                         PairDegradedCompare<StationTrain>>;
+
 } // namespace sjtu

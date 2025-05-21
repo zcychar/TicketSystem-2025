@@ -56,12 +56,12 @@ auto B_PLUS_TREE_LEAF_PAGE_TYPE::RidAt(int index) const -> ValueType {
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::SetKeyAt(int index, const KeyType& key) {
+void B_PLUS_TREE_LEAF_PAGE_TYPE::SetKeyAt(int index, const KeyType &key) {
   key_array_[index] = key;
 }
 
 INDEX_TEMPLATE_ARGUMENTS
-void B_PLUS_TREE_LEAF_PAGE_TYPE::SetRidAt(int index, const ValueType& value) {
+void B_PLUS_TREE_LEAF_PAGE_TYPE::SetRidAt(int index, const ValueType &value) {
   rid_array_[index] = value;
 }
 
@@ -70,11 +70,13 @@ template class BPlusTreeLeafPage<
   TrainDate, TicketDateInfo, PairCompare<TrainDate>, PairDegradedCompare<
     TrainDate> >;
 template class BPlusTreeLeafPage<
-  TrainDate, PendingInfo, PairCompare<TrainDate>, PairCompare<TrainDate> >;
-template class BPlusTreeLeafPage<hash_t, StationTrainInfo, HashComp, HashComp>;
+  TrainDateOrder, PendingInfo, TDOCompare, TDODegradedCompare>;
 template class BPlusTreeLeafPage<
   OrderTime, OrderInfo, PairCompare<OrderTime>, PairDegradedCompare<
     OrderTime> >;
+template class BPlusTreeLeafPage<
+  StationTrain, StationTrainInfo, PairCompare<StationTrain>,
+  PairDegradedCompare<StationTrain> >;
 
 template class BPlusTreeLeafPage<hash_t, TrainMeta, HashComp, HashComp>;
 } // namespace sjtu

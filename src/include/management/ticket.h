@@ -9,9 +9,52 @@ namespace sjtu {
 class Train;
 using TrainDate = std::pair<hash_t, num_t>; // trainID_hash && date
 using OrderTime = std::pair<hash_t, int>; // username_hash && timestamp
+using TrainDateOrder = std::pair<std::pair<hash_t, num_t>, int>;
 using TrainDate = std::pair<hash_t, num_t>;
+using StationTrain = std::pair<hash_t, hash_t>;
 
 enum class TicketStatus { Success, Pending, Refunded };
+
+struct TDOCompare {
+  int operator()(const TrainDateOrder &lhs, const TrainDateOrder &rhs) const {
+    if (lhs.first.first != rhs.first.first) {
+      if (lhs.first.first < rhs.first.first) {
+        return -1;
+      }
+      return 1;
+    }
+    if (lhs.first.second != rhs.first.second) {
+      if (lhs.first.second < rhs.first.second) {
+        return -1;
+      }
+      return 1;
+    }
+    if (lhs.second < rhs.second) {
+      return -1;
+    } else if (lhs.second > rhs.second) {
+      return 1;
+    }
+    return 0;
+  }
+};
+
+struct TDODegradedCompare {
+  int operator()(const TrainDateOrder &lhs, const TrainDateOrder &rhs) const {
+    if (lhs.first.first != rhs.first.first) {
+      if (lhs.first.first < rhs.first.first) {
+        return -1;
+      }
+      return 1;
+    }
+    if (lhs.first.second != rhs.first.second) {
+      if (lhs.first.second < rhs.first.second) {
+        return -1;
+      }
+      return 1;
+    }
+    return 0;
+  }
+};
 
 struct TicketDateInfo {
   num_t stationNum = 0;
@@ -25,36 +68,51 @@ struct TicketDateInfo {
 
   num_t getSeat(num_t from, num_t to) {
     auto minm = seatNum[from];
-    for (int i = from + 1; i <= to; ++i) {
+    for (int i = from + 1; i < to; ++i) {
       minm = std::min(seatNum[i], minm);
     }
     return minm;
   }
 
   void changeSeat(num_t from, num_t to, num_t fig) {
-    for (int i = from; i <= to; ++i) {
+    for (int i = from; i < to; ++i) {
       seatNum[i] += fig;
     }
   }
 }; // 200bytes,changed when release
 
 struct OrderInfo {
+  int timestamp;
   TicketStatus status;
-  char trainID[20];
-  char from[30];
-  char to[30];
+  char trainID[20]{};
+  char from[30]{};
+  char to[30]{};
+  num_t from_index;
+  num_t to_index;
   DateTime leavingTime;
   DateTime arrivingTime;
   int price;
   num_t num;
+
+  OrderInfo(int stamp, TicketStatus s, const char ID[], const char f[],
+            const char t[], num_t index_1, num_t index_2, DateTime &l_time,
+            DateTime &a_time, int p, num_t n): timestamp(stamp), status(s),
+                                               leavingTime(l_time),
+                                               arrivingTime(a_time), price(p),
+                                               num(n), from_index(index_1),
+                                               to_index(index_2) {
+    strncpy(trainID, ID, 20);
+    strncpy(from, f, 30);
+    strncpy(to, t, 30);
+  }
 }; // 100bytes, static info besides status
 
 struct PendingInfo {
   int timestamp;
   hash_t username_hash;
   hash_t trainID_hash;
-  hash_t from;
-  hash_t to;
+  num_t from_index;
+  num_t to_index;
   num_t num;
 }; // 48 bytes
 // searched by train_ID,should check avaibility then change OrderInfo::status
@@ -190,7 +248,8 @@ struct TranSortByCost {
   }
 };
 
-inline bool TransferPossible(const DateTime arr_1, const DateTime &lft_1, const DateTime &arr_2,
+inline auto TransferPossible(const DateTime arr_1, const DateTime &lft_1,
+                             const DateTime &arr_2,
                              const DateTime &lft_2) -> bool {
   return arr_2 <= lft_1 && arr_1 <= lft_2;
 }
@@ -208,7 +267,8 @@ public:
                      num_t date,
                      std::string comp = "time");
 
-  void BuyTicket(std::string &username, std::string &trainID, num_t date,
+  void BuyTicket(int timestamp, std::string &username, std::string &trainID,
+                 num_t date,
                  num_t num, std::string &from, std::string &to,
                  std::string queue = "false");
 
@@ -225,11 +285,13 @@ private:
                             PairDegradedCompare<OrderTime> > >
   order_db_;
 
-  std::unique_ptr<BPlusTree<TrainDate, PendingInfo, PairCompare<TrainDate>,
-                            PairCompare<TrainDate> > >
+  std::unique_ptr<BPlusTree<TrainDateOrder, PendingInfo, TDOCompare,
+                            TDODegradedCompare > >
   pending_db_;
 
-  std::unique_ptr<BPlusTree<hash_t, StationTrainInfo, HashComp, HashComp> >
+  std::unique_ptr<BPlusTree<StationTrain, StationTrainInfo,
+                            PairCompare<StationTrain>, PairDegradedCompare<
+                              StationTrain> > >
   station_db_;
 
   User *user_;

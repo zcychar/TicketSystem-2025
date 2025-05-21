@@ -6,9 +6,7 @@
 #include <iostream>
 
 
-
 namespace sjtu {
-
 inline auto ToHash(std::string &str) -> hash_t {
   auto size = str.size();
   auto hash = size;
@@ -148,22 +146,22 @@ struct DateTime {
     return (date - rhs.date) * 1440 + (time - rhs.time);
   }
 
-  bool operator<(const DateTime &rhs) const{
-    if(date!=rhs.date) {
-      return date<rhs.date;
+  bool operator<(const DateTime &rhs) const {
+    if (date != rhs.date) {
+      return date < rhs.date;
     }
-    return time<rhs.time;
+    return time < rhs.time;
   }
 
-  bool operator>=(const DateTime &rhs) const{
+  bool operator>=(const DateTime &rhs) const {
     return !operator<(rhs);
   }
 
-  bool operator>(const DateTime &rhs) const{
-    if(date!=rhs.date) {
-      return date>rhs.date;
+  bool operator>(const DateTime &rhs) const {
+    if (date != rhs.date) {
+      return date > rhs.date;
     }
-    return time>rhs.time;
+    return time > rhs.time;
   }
 
   bool operator<=(const DateTime &rhs) const {
@@ -181,6 +179,9 @@ inline void InsertStations(char station[][30], std::string &s) {
 }
 
 inline void InsertNum(num_t time[], std::string &t) {
+  if(t[0]=='_') {
+    return;
+  }
   std::istringstream iss(t);
   std::string str;
   int cnt = 0;
@@ -198,4 +199,7 @@ inline void InsertNum(int time[], std::string &t) {
   }
 }
 
+inline auto ToTimeStamp(std::string &t) -> int {
+  return std::stoi(t.substr(1,t.size()-2));
+}
 } // namespace sjtu

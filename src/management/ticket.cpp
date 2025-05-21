@@ -15,6 +15,10 @@ Ticket::Ticket(std::string &name, User *user) : user_(user) {
   PairDegradedCompare<TrainDate> tdcomp_d;
   PairCompare<OrderTime> odcomp;
   PairDegradedCompare<OrderTime> odcomp_d;
+  PairCompare<StationTrain> stcomp;
+  PairDegradedCompare<StationTrain> stcomp_d;
+  TDOCompare tdocomp;
+  TDODegradedCompare tdocomp_d;
   ticket_db_ = std::make_unique<
     BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>,
               PairDegradedCompare<TrainDate> > >(name + "_ticket_db",
@@ -24,12 +28,13 @@ Ticket::Ticket(std::string &name, User *user) : user_(user) {
                                  PairDegradedCompare<OrderTime> > >(
           name + "_order_db", odcomp, odcomp_d, 256);
   pending_db_ = std::make_unique<
-    BPlusTree<TrainDate, PendingInfo, PairCompare<TrainDate>,
-              PairCompare<TrainDate> > >(name + "_pending_db", tdcomp,
-                                         tdcomp, 128);
+    BPlusTree<TrainDateOrder, PendingInfo, TDOCompare,
+              TDODegradedCompare> >(name + "_pending_db", tdocomp,
+                                    tdocomp_d, 128);
   station_db_ = std::make_unique<
-    BPlusTree<hash_t, StationTrainInfo, HashComp, HashComp> >(
-      name + "_station_db", hashcomp, hashcomp, 256);
+    BPlusTree<StationTrain, StationTrainInfo, PairCompare<StationTrain>,
+              PairDegradedCompare<StationTrain> > >(
+      name + "_station_db", stcomp, stcomp_d, 256);
 }
 
 void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
@@ -37,8 +42,8 @@ void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
   auto from_hash = ToHash(from);
   auto to_hash = ToHash(to);
   vector<StationTrainInfo> from_vector, to_vector;
-  station_db_->GetValue(from_hash, &from_vector);
-  station_db_->GetValue(to_hash, &to_vector);
+  station_db_->GetAllValue(StationTrain(from_hash, 0), &from_vector);
+  station_db_->GetAllValue(StationTrain(to_hash, 0), &to_vector);
   if (from_vector.empty() || to_vector.empty()) {
     std::cout << "0\n";
     return;
@@ -57,65 +62,72 @@ void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
 
   if (comp == "time") {
     sjtu::priority_queue<TicketComp, SortByTime> queue;
+
     for (auto &train : to_vector) {
       auto it = train_map.find(train.trainID_hash);
       if (it != train_map.end()) {
+        if (from_vector[it->second].station_index >= train.station_index) {
+          continue;
+        }
         TicketComp ticket(
             train.arrivingTime - from_vector[it->second].arrivingTime,
             train.price - from_vector[it->second].price,
             from_vector[it->second].station_index, train.station_index,
-            DateTime(from_vector[it->second].leavingTime.date + date,
+            DateTime(date,
                      from_vector[it->second].leavingTime.time),
-            DateTime(train.arrivingTime.date + date,
+            DateTime(date,
                      train.arrivingTime.time),
             train.trainID_hash, train.trainID);
         queue.push(ticket);
       }
-      std::cout << queue.size() << '\n';
-      while (!queue.empty()) {
-        auto ticket = queue.top();
-        queue.pop();
-        vector<TicketDateInfo> ticketNum;
-        ticket_db_->GetValue(TrainDate(ticket.trainID_hash, date),
-                             &ticketNum);
-        std::cout << ticket.trainID << ' ' << from << ' '
-            << ticket.leavingTime << " -> " << to << ' '
-            << ticket.arrivingTime << ' ' << ticket.cost << ' '
-            << ticketNum[0].getSeat(ticket.station_index_1,
-                                    ticket.station_index_2)
-            << '\n';
-      }
+    }
+    std::cout << queue.size() << '\n';
+    while (!queue.empty()) {
+      auto ticket = queue.top();
+      queue.pop();
+      vector<TicketDateInfo> ticketNum;
+      ticket_db_->GetValue(TrainDate(ticket.trainID_hash, date),
+                           &ticketNum);
+      std::cout << ticket.trainID << ' ' << from << ' '
+          << ticket.leavingTime << " -> " << to << ' '
+          << ticket.arrivingTime << ' ' << ticket.cost << ' '
+          << ticketNum[0].getSeat(ticket.station_index_1,
+                                  ticket.station_index_2)
+          << '\n';
     }
   } else {
     sjtu::priority_queue<TicketComp, SortByCost> queue;
     for (auto train : to_vector) {
       auto it = train_map.find(train.trainID_hash);
       if (it != train_map.end()) {
+        if (from_vector[it->second].station_index >= train.station_index) {
+          continue;
+        }
         TicketComp ticket(
             train.arrivingTime - from_vector[it->second].arrivingTime,
             train.price - from_vector[it->second].price,
             from_vector[it->second].station_index, train.station_index,
-            DateTime(from_vector[it->second].leavingTime.date + date,
+            DateTime(date,
                      from_vector[it->second].leavingTime.time),
-            DateTime(train.arrivingTime.date + date,
+            DateTime(date,
                      train.arrivingTime.time),
             train.trainID_hash, train.trainID);
         queue.push(ticket);
       }
-      std::cout << queue.size() << '\n';
-      while (!queue.empty()) {
-        auto ticket = queue.top();
-        queue.pop();
-        vector<TicketDateInfo> ticketNum;
-        ticket_db_->GetValue(TrainDate(ticket.trainID_hash, date),
-                             &ticketNum);
-        std::cout << ticket.trainID << ' ' << from << ' '
-            << ticket.leavingTime << " -> " << to << ' '
-            << ticket.arrivingTime << ' ' << ticket.cost << ' '
-            << ticketNum[0].getSeat(ticket.station_index_1,
-                                    ticket.station_index_2)
-            << '\n';
-      }
+    }
+    std::cout << queue.size() << '\n';
+    while (!queue.empty()) {
+      auto ticket = queue.top();
+      queue.pop();
+      vector<TicketDateInfo> ticketNum;
+      ticket_db_->GetValue(TrainDate(ticket.trainID_hash, date),
+                           &ticketNum);
+      std::cout << ticket.trainID << ' ' << from << ' '
+          << ticket.leavingTime << " -> " << to << ' '
+          << ticket.arrivingTime << ' ' << ticket.cost << ' '
+          << ticketNum[0].getSeat(ticket.station_index_1,
+                                  ticket.station_index_2)
+          << '\n';
     }
   }
 }
@@ -125,8 +137,8 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
   auto from_hash = ToHash(from);
   auto to_hash = ToHash(to);
   vector<StationTrainInfo> from_vector, to_vector;
-  station_db_->GetValue(from_hash, &from_vector);
-  station_db_->GetValue(to_hash, &to_vector);
+  station_db_->GetAllValue(StationTrain(from_hash, 0), &from_vector);
+  station_db_->GetAllValue(StationTrain(to_hash, 0), &to_vector);
   if (from_vector.empty() || to_vector.empty()) {
     std::cout << "0\n";
     return;
@@ -165,6 +177,7 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
 
       for (int i = train.station_index + 1; i < trainInfo->stationNum; ++i) {
         auto station_hash = ToHash(trainInfo->stations[i]);
+        arriveTime = leaveTime;
         arriveTime += trainInfo->travelTimes[i - 1];
         leaveTime = arriveTime;
         if (i != trainInfo->stationNum - 1) {
@@ -175,7 +188,7 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
         cost += trainInfo->prices[i - 1];
 
         vector<StationTrainInfo> trans_vector;
-        station_db_->GetValue(station_hash, &trans_vector);
+        station_db_->GetAllValue(StationTrain(station_hash, 0), &trans_vector);
         for (auto &trans : trans_vector) {
           auto it = train_map.find(trans.trainID_hash);
           if (it == train_map.end() || trans.trainID_hash == train.trainID_hash
@@ -211,7 +224,7 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
             if (trans_date > trans.saleDate.second) {
               break;
             }
-            auto to_train = to_vector[it->second];
+            auto &to_train = to_vector[it->second];
             TicketComp ticket_1(arriveTime - init_leaveTime, cost,
                                 train.station_index, i, init_leaveTime,
                                 arriveTime, train.trainID_hash, train.trainID);
@@ -272,6 +285,7 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
 
       for (int i = train.station_index + 1; i < trainInfo->stationNum; ++i) {
         auto station_hash = ToHash(trainInfo->stations[i]);
+        arriveTime = leaveTime;
         arriveTime += trainInfo->travelTimes[i - 1];
         leaveTime = arriveTime;
         if (i != trainInfo->stationNum - 1) {
@@ -282,7 +296,7 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
         cost += trainInfo->prices[i - 1];
 
         vector<StationTrainInfo> trans_vector;
-        station_db_->GetValue(station_hash, &trans_vector);
+        station_db_->GetAllValue(StationTrain(station_hash, 0), &trans_vector);
         for (auto &trans : trans_vector) {
           auto it = train_map.find(trans.trainID_hash);
           if (it == train_map.end() || trans.trainID_hash == train.trainID_hash
@@ -318,7 +332,7 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
             if (trans_date > trans.saleDate.second) {
               break;
             }
-            auto to_train = to_vector[it->second];
+            auto &to_train = to_vector[it->second];
             TicketComp ticket_1(arriveTime - init_leaveTime, cost,
                                 train.station_index, i, init_leaveTime,
                                 arriveTime, train.trainID_hash, train.trainID);
@@ -365,11 +379,162 @@ void Ticket::QueryTransfer(Train *train_system, std::string &from,
   }
 }
 
-void Ticket::BuyTicket(std::string &username, std::string &trainID, num_t date,
+void Ticket::BuyTicket(int timestamp, std::string &username,
+                       std::string &trainID, num_t date,
                        num_t num, std::string &from, std::string &to,
                        std::string queue) {
+  auto user_hash = ToHash(username);
+  auto train_hash = ToHash(trainID);
+  vector<UserInfo> user_vector;
+  user_->user_db_->GetValue(user_hash, &user_vector);
+  if (!user_->IsLogged(username)) {
+    std::cout << "-1\n";
+    return;
+  }
+  auto &cur_user = user_vector[0];
+  auto from_hash = ToHash(from);
+  vector<StationTrainInfo> from_vector;
+  station_db_->GetValue(StationTrain(from_hash, train_hash), &from_vector);
+  auto to_hash = ToHash(to);
+  vector<StationTrainInfo> to_vector;
+  station_db_->GetValue(StationTrain(to_hash, train_hash), &to_vector);
+  auto &from_station = from_vector[0], &to_station = to_vector[0];
+  if (from_vector.empty() || to_vector.empty()) {
+    std::cout << "-1\n";
+    return;
+  }
+  auto leavingTime = DateTime(date, from_station.leavingTime.time);
+  auto arrivingTime = DateTime(
+      date + to_station.arrivingTime.date - from_station.leavingTime.date,
+      to_station.arrivingTime.time);
+
+  vector<TicketDateInfo> ticket_vector;
+  ticket_db_->GetValue(TrainDate(train_hash, date), &ticket_vector);
+  if (ticket_vector.empty()) {
+    std::cout << "-1\n";
+    return;
+  }
+  auto ticket_num = ticket_vector[0].getSeat(from_station.station_index,
+                                             to_station.station_index);
+  if (ticket_num >= num) {
+    ticket_vector[0].changeSeat(from_station.station_index,
+                                to_station.station_index, -num);
+    ticket_db_->Remove(TrainDate(train_hash, date));
+    ticket_db_->Insert(TrainDate(train_hash, date), ticket_vector[0]);
+    auto price = (to_station.price - from_station.price) * num;
+    OrderInfo order(timestamp, TicketStatus::Success, trainID.c_str(),
+                    from.c_str(), to.c_str(), from_station.station_index,
+                    to_station.station_index, leavingTime, arrivingTime, price,
+                    num);
+    order_db_->Insert(OrderTime(user_hash, timestamp), order);
+    std::cout << price << '\n';
+  } else {
+    if (queue == "false") {
+      std::cout << "-1\n";
+      return;
+    }
+    auto price = (to_station.price - from_station.price) * num;
+    OrderInfo order(timestamp, TicketStatus::Pending, trainID.c_str(),
+                    from.c_str(), to.c_str(), from_station.station_index,
+                    to_station.station_index, leavingTime, arrivingTime, price,
+                    num);
+    order_db_->Insert(OrderTime(user_hash, timestamp), order);
+    PendingInfo pending_info{timestamp, user_hash, train_hash,
+                             from_station.station_index,
+                             to_station.station_index, num};
+    pending_db_->Insert(TrainDateOrder(TrainDate(train_hash, date), timestamp),
+                        pending_info);
+    std::cout << "queue\n";
+  }
 }
 
 void Ticket::RefundTicket(std::string &username, int n) {
+  auto user_hash = ToHash(username);
+  if (!user_->IsLogged(username)) {
+    std::cout << "-1\n";
+    return;
+  }
+  vector<OrderInfo> user_order_info;
+  order_db_->GetAllValue(OrderTime(user_hash, -1), &user_order_info);
+  auto order_size = user_order_info.size();
+  if (order_size < n) {
+    std::cout << "-1\n";
+    return;
+  }
+  auto &obj_order = user_order_info[order_size - n];
+  if (obj_order.status != TicketStatus::Success) {
+    std::cout << "-1\n";
+    return;
+  }
+  auto train_hash = ToHash(obj_order.trainID);
+  obj_order.status = TicketStatus::Refunded;
+  order_db_->Remove(OrderTime(user_hash, obj_order.timestamp));
+  order_db_->Insert(OrderTime(user_hash, obj_order.timestamp), obj_order);
+  vector<TicketDateInfo> ticket_vector;
+  ticket_db_->GetValue(
+      TrainDate(train_hash, obj_order.leavingTime.date),
+      &ticket_vector);
+  auto &cur_ticket = ticket_vector[0];
+  cur_ticket.changeSeat(obj_order.from_index, obj_order.to_index,
+                        obj_order.num);
+  vector<PendingInfo> pending_vector;
+  pending_db_->GetAllValue(
+      TrainDateOrder(TrainDate(train_hash, obj_order.leavingTime.date),
+                     -1), &pending_vector);
+  auto pending_size = pending_vector.size();
+  if (pending_size == 0) {
+    ticket_db_->Remove(TrainDate(train_hash, obj_order.leavingTime.date));
+    ticket_db_->Insert(TrainDate(train_hash, obj_order.leavingTime.date),
+                       cur_ticket);
+    std::cout << "0\n";
+    return;
+  }
+  for (auto &pending_order : pending_vector) {
+    if (pending_order.num <= cur_ticket.getSeat(pending_order.from_index,
+                                                pending_order.to_index)) {
+      cur_ticket.changeSeat(pending_order.from_index, pending_order.to_index,
+                            -pending_order.num);
+      vector<OrderInfo> order_info;
+      order_db_->GetValue(
+          OrderTime(pending_order.username_hash, pending_order.timestamp),
+          &order_info);
+      order_info[0].status = TicketStatus::Success;
+      order_db_->Remove(OrderTime(pending_order.username_hash,
+                                  pending_order.timestamp));
+      order_db_->Insert(
+          OrderTime(pending_order.username_hash, pending_order.timestamp),
+          order_info[0]);
+      pending_db_->Remove(TrainDateOrder(
+          TrainDate(train_hash, obj_order.leavingTime.date),
+          pending_order.timestamp));
+    }
+  }
+  ticket_db_->Remove(TrainDate(train_hash, obj_order.leavingTime.date));
+  ticket_db_->Insert(TrainDate(train_hash, obj_order.leavingTime.date),
+                     cur_ticket);
+  std::cout << "0\n";
+}
+
+void Ticket::QueryOrder(std::string &username) {
+  auto user_hash = ToHash(username);
+  if (!user_->IsLogged(username)) {
+    std::cout << "-1\n";
+    return;
+  }
+  vector<OrderInfo> order_vector;
+  order_db_->GetAllValue(OrderTime(user_hash, -1), &order_vector);
+  std::cout << order_vector.size() << '\n';
+  for (auto &order : order_vector) {
+    if (order.status == TicketStatus::Success) {
+      std::cout << "[success] ";
+    } else if (order.status == TicketStatus::Pending) {
+      std::cout << "[pending] ";
+    } else {
+      std::cout << "[refunded] ";
+    }
+    std::cout << order.trainID << ' ' << order.from << ' ' << order.leavingTime
+        << " -> " << order.to << ' ' << order.arrivingTime << ' ' << order.price
+        << ' ' << order.num << '\n';
+  }
 }
 } // namespace sjtu

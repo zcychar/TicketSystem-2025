@@ -90,5 +90,7 @@ template class BPlusTreeInternalPage<
   OrderTime, page_id_t, PairCompare<OrderTime>, PairDegradedCompare<
     OrderTime> >;
 template class BPlusTreeInternalPage<
-  TrainDate, page_id_t, PairCompare<TrainDate>, PairCompare<TrainDate> >;
+  TrainDateOrder, page_id_t,TDOCompare, TDODegradedCompare >;
+template class BPlusTreeInternalPage<
+  StationTrain, page_id_t, PairCompare<StationTrain>, PairDegradedCompare<StationTrain> >;
 } // namespace sjtu

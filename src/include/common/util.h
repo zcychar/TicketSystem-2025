@@ -1,17 +1,28 @@
 #pragma once
 
 #include <cstring>
-
 #include "common/config.h"
 #include "common/vector.h"
 #include <iostream>
 
+
+
 namespace sjtu {
+
 inline auto ToHash(std::string &str) -> hash_t {
   auto size = str.size();
   auto hash = size;
   for (auto it : str) {
     hash = (hash << 5) ^ (hash >> 27) ^ it;
+  }
+  return hash;
+}
+
+inline auto ToHash(const char str[]) -> hash_t {
+  auto size = strlen(str);
+  auto hash = size;
+  for (int i = 0; i < size; ++i) {
+    hash = (hash << 5) ^ (hash >> 27) ^ str[i];
   }
   return hash;
 }
@@ -136,6 +147,28 @@ struct DateTime {
   num_t operator-(DateTime &rhs) {
     return (date - rhs.date) * 1440 + (time - rhs.time);
   }
+
+  bool operator<(const DateTime &rhs) const{
+    if(date!=rhs.date) {
+      return date<rhs.date;
+    }
+    return time<rhs.time;
+  }
+
+  bool operator>=(const DateTime &rhs) const{
+    return !operator<(rhs);
+  }
+
+  bool operator>(const DateTime &rhs) const{
+    if(date!=rhs.date) {
+      return date>rhs.date;
+    }
+    return time>rhs.time;
+  }
+
+  bool operator<=(const DateTime &rhs) const {
+    return !operator>(rhs);
+  }
 };
 
 inline void InsertStations(char station[][30], std::string &s) {
@@ -164,4 +197,5 @@ inline void InsertNum(int time[], std::string &t) {
     time[cnt++] = std::stoi(str);
   }
 }
+
 } // namespace sjtu

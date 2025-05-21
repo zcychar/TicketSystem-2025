@@ -57,7 +57,7 @@ struct PendingInfo {
   hash_t to;
   num_t num;
 }; // 48 bytes
-// searched by train_ID,l,,,,,should check avaibility then change OrderInfo::status
+// searched by train_ID,should check avaibility then change OrderInfo::status
 
 struct StationTrainInfo {
   hash_t trainID_hash;
@@ -126,8 +126,17 @@ struct TicketComp {
 struct TicketTransComp {
   num_t time;
   int cost;
+  char station[30]{};
   TicketComp ticket_1;
   TicketComp ticket_2;
+
+  TicketTransComp(TicketComp &ticket_1,
+                  TicketComp &ticket_2, const char st[]): ticket_1(ticket_1),
+    ticket_2(ticket_2) {
+    time = ticket_2.arrivingTime - ticket_1.leavingTime;
+    cost = ticket_1.cost + ticket_2.cost;
+    strncpy(station, st, 30);
+  }
 };
 
 
@@ -180,6 +189,11 @@ struct TranSortByCost {
     return strcmp(lhs.ticket_2.trainID, rhs.ticket_2.trainID) < 0;
   }
 };
+
+inline bool TransferPossible(const DateTime arr_1, const DateTime &lft_1, const DateTime &arr_2,
+                             const DateTime &lft_2) -> bool {
+  return arr_2 <= lft_1 && arr_1 <= lft_2;
+}
 
 class Ticket {
   friend Train;

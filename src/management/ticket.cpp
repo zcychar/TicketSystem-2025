@@ -33,7 +33,7 @@ Ticket::Ticket(std::string &name, User *user) : user_(user) {
   station_db_ = std::make_unique<
       BPlusTree<StationTrain, StationTrainInfo, PairCompare<StationTrain>,
                 PairDegradedCompare<StationTrain> > >(name + "_station_db",
-                                                      stcomp, stcomp_d, 512);
+                                                      stcomp, stcomp_d, 256);
 }
 
 void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,

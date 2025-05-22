@@ -22,18 +22,18 @@ Ticket::Ticket(std::string &name, User *user) : user_(user) {
   ticket_db_ = std::make_unique<
       BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>,
                 PairDegradedCompare<TrainDate> > >(name + "_ticket_db", tdcomp,
-                                                   tdcomp_d, 1024);
+                                                   tdcomp_d, 512);
   order_db_ =
       std::make_unique<BPlusTree<OrderTime, OrderInfo, PairCompare<OrderTime>,
                                  PairDegradedCompare<OrderTime> > >(
-          name + "_order_db", odcomp, odcomp_d, 1024);
+          name + "_order_db", odcomp, odcomp_d, 512);
   pending_db_ = std::make_unique<
       BPlusTree<TrainDateOrder, PendingInfo, TDOCompare, TDODegradedCompare> >(
-      name + "_pending_db", tdocomp, tdocomp_d, 1024);
+      name + "_pending_db", tdocomp, tdocomp_d, 512);
   station_db_ = std::make_unique<
       BPlusTree<StationTrain, StationTrainInfo, PairCompare<StationTrain>,
                 PairDegradedCompare<StationTrain> > >(name + "_station_db",
-                                                      stcomp, stcomp_d, 1024);
+                                                      stcomp, stcomp_d, 512);
 }
 
 void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,

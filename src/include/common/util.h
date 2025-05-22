@@ -80,8 +80,8 @@ struct PairDegradedCompare {
 };
 
 inline std::string ToDate(num_t date) {
-  const char *month = (date <= 30) ? "06" : (date <= 61) ? "07" : "08";
-  int day = (date <= 30) ? date : (date <= 61) ? date - 30 : date - 61;
+  const char *month = (date <= 30) ? "06" : (date <= 61) ? "07" : (date <= 92) ? "08" : "09";
+  int day = (date <= 30) ? date : (date <= 61) ? date - 30 : (date <= 92) ? date - 61 : date - 92;
   char buffer[6];
   snprintf(buffer, sizeof(buffer), "%s-%02d", month, day);
   return buffer;
@@ -176,7 +176,7 @@ struct DateTime {
   }
 };
 
-inline void InsertStations(char station[][30], std::string &s) {
+inline void InsertStations(char station[][31], std::string &s) {
   std::istringstream iss(s);
   std::string str;
   int cnt = 0;

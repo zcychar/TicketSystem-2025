@@ -21,8 +21,8 @@ struct TrainInfo {
   int prices[99]{};
   DateRange saleDate;
   char type;
-  char trainID[20]{};
-  char stations[100][30]{};
+  char trainID[21]{};
+  char stations[100][31]{};
 
   TrainInfo(std::string &i, std::string &n, std::string &m, std::string &s,
             std::string &p, std::string &x, std::string &t, std::string &o,
@@ -91,5 +91,7 @@ private:
   train_db_;
 
   Ticket *ticket_;
+
+  page_id_t header_page_id_;
 };
 }

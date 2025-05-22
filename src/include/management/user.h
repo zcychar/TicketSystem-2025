@@ -9,10 +9,10 @@ class Ticket;
 
 struct UserInfo {
   hash_t username_hash = 0;
-  char username[20] = {};
-  char password[30] = {};
-  char name[15] = {};
-  char mailaddr[30] = {};
+  char username[21] = {};
+  char password[31] = {};
+  char name[16] = {};
+  char mailaddr[31] = {};
   num_t privilege = 0;
 
   UserInfo(std::string &u, std::string &p, std::string &n, std::string &m,
@@ -28,7 +28,7 @@ struct UserInfo {
 
 struct UserInfoOptional {
   hash_t username_hash = 0;
-  char username[20] = {};
+  char username[21] = {};
   std::optional<std::string> password = {};
   std::optional<std::string> name = {};
   std::optional<std::string> mailaddr = {};

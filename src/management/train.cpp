@@ -7,17 +7,16 @@ Train::Train(std::string &name, Ticket *ticket) : ticket_(ticket) {
   HashComp comp;
   train_db_ =
       std::make_unique<BPlusTree<hash_t, TrainMeta, HashComp, HashComp> >(
-          "train_db", comp, comp, 128);
+          "train_db", comp, comp, 512);
   train_manager_ = std::make_unique<BufferPoolManager>(512, "train_manager");
-  auto header_page = train_manager_->WritePage(0).AsMut<BPlusTreeHeaderPage>();
-  if (header_page->next_page_id_ == 0) {
-    header_page->next_page_id_ = 1;
-  }
-  train_manager_->SetNextPageId(header_page->next_page_id_);
+  header_page_id_ = train_manager_->NewPage();
+  WritePageGuard guard = train_manager_->WritePage(header_page_id_);
+  auto root_page = guard.AsMut<BPlusTreeHeaderPage>();
+  train_manager_->SetNextPageId(root_page->next_page_id_);
 }
 
 Train::~Train() {
-  auto header_page = train_manager_->WritePage(0).AsMut<BPlusTreeHeaderPage>();
+  auto header_page = train_manager_->WritePage(header_page_id_).AsMut<BPlusTreeHeaderPage>();
   header_page->next_page_id_ = train_manager_->GetNextPageId();
 }
 

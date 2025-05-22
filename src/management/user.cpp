@@ -3,14 +3,13 @@
 #include <cstring>
 
 namespace sjtu {
-User::User(std::string& name) {
+User::User(std::string &name) {
   HashComp comp;
-  user_db_ = std::make_unique<BPlusTree<
-    hash_t, UserInfo, HashComp, HashComp> >(
+  user_db_ = std::make_unique<BPlusTree<hash_t, UserInfo, HashComp, HashComp> >(
       name + "_db", comp, comp);
 }
 
-void User::AddUser(std::string& cur_username, UserInfo& user) {
+void User::AddUser(std::string &cur_username, UserInfo &user) {
   if (user_db_->IsEmpty()) {
     user.privilege = 10;
     if (user_db_->Insert(user.username_hash, user)) {
@@ -38,12 +37,8 @@ void User::AddUser(std::string& cur_username, UserInfo& user) {
   }
 }
 
-void User::Login(std::string& username, std::string& password) {
+void User::Login(std::string &username, std::string &password) {
   auto user_hash = ToHash(username);
-  if (logged_user_.count(user_hash) != 0) {
-    std::cout << "-1\n";
-    return;
-  }
   sjtu::vector<UserInfo> user_vector;
   user_db_->GetValue(user_hash, &user_vector);
   if (user_vector.empty()) {
@@ -54,11 +49,16 @@ void User::Login(std::string& username, std::string& password) {
     std::cout << "-1\n";
     return;
   }
-  logged_user_.insert(user_hash, user_vector[0]);
+
+  auto status=logged_user_.insert(user_hash, user_vector[0]);
+  if(status.second==false) {
+    std::cout<<"-1\n";
+    return;
+  }
   std::cout << "0\n";
 }
 
-void User::Logout(std::string& name) {
+void User::Logout(std::string &name) {
   auto user_hash = ToHash(name);
   if (logged_user_.count(user_hash) == 0) {
     std::cout << "-1\n";
@@ -68,11 +68,11 @@ void User::Logout(std::string& name) {
   std::cout << "0\n";
 }
 
-auto User::IsLogged(std::string& username) const -> bool {
+auto User::IsLogged(std::string &username) const -> bool {
   return logged_user_.count(ToHash(username)) == 1;
 }
 
-void User::QueryProfile(std::string& cur_username, std::string& username) {
+void User::QueryProfile(std::string &cur_username, std::string &username) {
   auto cur_user = logged_user_.find(ToHash(cur_username));
   if (cur_user == logged_user_.end()) {
     std::cout << "-1\n";
@@ -85,29 +85,29 @@ void User::QueryProfile(std::string& cur_username, std::string& username) {
     return;
   }
   if (user_vector[0].username_hash == cur_user->second.username_hash) {
-    std::cout << user_vector[0].username << ' ' << user_vector[0].name <<
-        ' ' <<
-        user_vector[0].mailaddr << ' ' <<
-        user_vector[0].privilege << '\n';
+    std::cout << user_vector[0].username << ' ' << user_vector[0].name << ' '
+              << user_vector[0].mailaddr << ' ' << user_vector[0].privilege
+              << '\n';
     return;
   }
   if (cur_user->second.privilege <= user_vector[0].privilege) {
     std::cout << "-1\n";
     return;
   }
-  std::cout << user_vector[0].username << ' ' << user_vector[0].name << ' ' <<
-      user_vector[0].mailaddr << ' ' <<
-      user_vector[0].privilege << '\n';
+  std::cout << user_vector[0].username << ' ' << user_vector[0].name << ' '
+            << user_vector[0].mailaddr << ' ' << user_vector[0].privilege
+            << '\n';
 }
 
-void User::ModifyProfile(std::string& cur_username, UserInfoOptional& user) {
-  auto cur_user = logged_user_.find(ToHash(cur_username));
-  if (cur_user == logged_user_.end()) {
+void User::ModifyProfile(std::string &cur_username, UserInfoOptional &user) {
+  auto cur_user_it = logged_user_.find(ToHash(cur_username));
+
+  if (cur_user_it == logged_user_.end()) {
     std::cout << "-1\n";
     return;
   }
-  if (user.privilege.has_value() && user.privilege >= cur_user->second.
-      privilege) {
+  auto cur_user = cur_user_it->second;
+  if (user.privilege.has_value() && user.privilege >= cur_user.privilege) {
     std::cout << "-1\n";
     return;
   }
@@ -119,8 +119,8 @@ void User::ModifyProfile(std::string& cur_username, UserInfoOptional& user) {
     return;
   }
 
-  if (user_vector[0].privilege >= cur_user->second.privilege && cur_user->
-      second.username_hash != user_vector[0].username_hash) {
+  if (user_vector[0].privilege >= cur_user.privilege &&
+      cur_user.username_hash != user_vector[0].username_hash) {
     std::cout << "-1\n";
     return;
   }
@@ -144,8 +144,8 @@ void User::ModifyProfile(std::string& cur_username, UserInfoOptional& user) {
     logged_user_.erase(user.username_hash);
     logged_user_.insert(user.username_hash, user_vector[0]);
   }
-  std::cout << user_vector[0].username << ' ' << user_vector[0].name << ' ' <<
-      user_vector[0].mailaddr << ' ' <<
-      user_vector[0].privilege << '\n';
+  std::cout << user_vector[0].username << ' ' << user_vector[0].name << ' '
+            << user_vector[0].mailaddr << ' ' << user_vector[0].privilege
+            << '\n';
 }
-}
+}  // namespace sjtu

@@ -84,9 +84,9 @@ struct TicketDateInfo {
 struct OrderInfo {
   int timestamp;
   TicketStatus status;
-  char trainID[20]{};
-  char from[30]{};
-  char to[30]{};
+  char trainID[21]{};
+  char from[31]{};
+  char to[31]{};
   num_t from_index;
   num_t to_index;
   DateTime leavingTime;
@@ -121,7 +121,7 @@ struct PendingInfo {
 
 struct StationTrainInfo {
   hash_t trainID_hash;
-  char trainID[20]{};
+  char trainID[21]{};
   num_t station_index;
   int price;
   DateRange saleDate;
@@ -172,7 +172,7 @@ struct TicketComp {
   DateTime leavingTime;
   DateTime arrivingTime;
   hash_t trainID_hash;
-  char trainID[20]{};
+  char trainID[21]{};
 
   TicketComp(num_t time, int cost,int t_num, num_t index_1, num_t index_2,
              DateTime l_time, DateTime a_time, hash_t hash,
@@ -187,7 +187,7 @@ struct TicketComp {
 struct TicketTransComp {
   num_t time;
   int cost;
-  char station[30]{};
+  char station[31]{};
   TicketComp ticket_1;
   TicketComp ticket_2;
 

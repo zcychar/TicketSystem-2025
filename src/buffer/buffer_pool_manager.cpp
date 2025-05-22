@@ -96,7 +96,7 @@ namespace sjtu {
 
   void BufferPoolManager::SetNextPageId(page_id_t next_page_id) {
     next_page_id_.store(next_page_id);
-    disk_manager_->IncreaseDiskSpace(next_page_id + 1);
+    disk_manager_->IncreaseDiskSpace(next_page_id );
   }
 
 

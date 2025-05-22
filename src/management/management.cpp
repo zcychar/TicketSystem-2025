@@ -16,7 +16,8 @@ Management::~Management() {
 bool Management::ProcessLine(vector<std::string> &line) {
   auto size = line.size();
   if (size == 0) {
-    return true;;
+    return true;
+    ;
   }
   std::cout << line[0] << ' ';
   auto cmd = line[1];
@@ -123,7 +124,8 @@ bool Management::ProcessLine(vector<std::string> &line) {
     }
   } else if (cmd == "buy_ticket") {
     if (q.empty()) {
-      ticket_->BuyTicket(ToTimeStamp(line[0]),u, i, DateToNum(d), std::stoi(n), f, t);
+      ticket_->BuyTicket(ToTimeStamp(line[0]), u, i, DateToNum(d), std::stoi(n),
+                         f, t);
     } else {
       ticket_->BuyTicket(ToTimeStamp(line[0]), u, i, DateToNum(d), std::stoi(n),
                          f, t, q);
@@ -144,7 +146,7 @@ bool Management::ProcessLine(vector<std::string> &line) {
     }
   } else if (cmd == "clean") {
     Clean("ticket_system");
-    std::cout<<"0\n";
+    std::cout << "0\n";
   }
   return true;
 }
@@ -165,4 +167,4 @@ void Management::Clean(std::string name) {
   train_ = new Train(name, ticket_);
 }
 
-}
+}  // namespace sjtu

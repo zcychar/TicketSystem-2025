@@ -402,7 +402,7 @@ void Ticket::BuyTicket(int timestamp, std::string &username,
   auto init_date = date - from_station.leavingTime.date;
   vector<TicketDateInfo> ticket_vector;
   ticket_db_->GetValue(TrainDate(train_hash, init_date), &ticket_vector);
-  if (ticket_vector.empty()||ticket_vector[0].seatMaxNum<num) {
+  if (ticket_vector.empty() || ticket_vector[0].seatMaxNum < num) {
     std::cout << "-1\n";
     return;
   }

@@ -1,17 +1,16 @@
 #pragma once
 
 #include <cstring>
-#include "storage/b_plus_tree.h"
+
 #include "buffer/buffer_pool_manager.h"
 #include "common/config.h"
 #include "management/ticket.h"
-
+#include "storage/b_plus_tree.h"
 
 namespace sjtu {
 class Ticket;
 
 struct TrainInfo {
-
   hash_t train_id_hash;
   num_t stationNum;
   int seatNum;
@@ -52,14 +51,13 @@ struct TrainInfo {
     }
     strncpy(trainID, other.trainID, 20);
     memcpy(prices, other.prices, (stationNum - 1) * sizeof(int));
-    memcpy(travelTimes, other.travelTimes,
-           (stationNum - 1) * sizeof(num_t));
+    memcpy(travelTimes, other.travelTimes, (stationNum - 1) * sizeof(num_t));
     memcpy(stopoverTimes, other.stopoverTimes,
            (stationNum - 2) * sizeof(num_t));
     return *this;
   }
-}; //3832 bytes, stored as single page
-//Static info only
+};  // 3832 bytes, stored as single page
+// Static info only
 
 struct TrainMeta {
   page_id_t page_id;
@@ -67,11 +65,10 @@ struct TrainMeta {
   bool is_released = false;
 };
 
-
 class Train {
   friend Ticket;
 
-public:
+ public:
   explicit Train(std::string &name, Ticket *ticket);
 
   ~Train();
@@ -84,14 +81,13 @@ public:
 
   void ReleaseTrain(std::string &trainID);
 
-private:
+ private:
   std::unique_ptr<BufferPoolManager> train_manager_;
 
-  std::unique_ptr<BPlusTree<hash_t, TrainMeta, HashComp, HashComp> >
-  train_db_;
+  std::unique_ptr<BPlusTree<hash_t, TrainMeta, HashComp, HashComp> > train_db_;
 
   Ticket *ticket_;
 
   page_id_t header_page_id_;
 };
-}
+}  // namespace sjtu

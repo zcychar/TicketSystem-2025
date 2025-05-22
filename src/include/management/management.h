@@ -1,12 +1,12 @@
 #pragma once
 
 #include "management/ticket.h"
-#include "management/user.h"
 #include "management/train.h"
+#include "management/user.h"
 
 namespace sjtu {
 class Management {
-public:
+ public:
   explicit Management(std::string name);
 
   ~Management();
@@ -15,9 +15,9 @@ public:
 
   void Clean(std::string name);
 
-private:
+ private:
   User *user_;
   Ticket *ticket_;
   Train *train_;
 };
-}
+}  // namespace sjtu

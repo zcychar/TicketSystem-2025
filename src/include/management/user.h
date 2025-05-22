@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string.h>
-#include "storage/b_plus_tree.h"
+
 #include "common/util.h"
+#include "storage/b_plus_tree.h"
 
 namespace sjtu {
 class Ticket;
@@ -24,7 +25,7 @@ struct UserInfo {
     strncpy(mailaddr, m.c_str(), 30);
     privilege = static_cast<num_t>(std::stoi(g));
   }
-}; //100 bytes
+};  // 100 bytes
 
 struct UserInfoOptional {
   hash_t username_hash = 0;
@@ -51,13 +52,12 @@ struct UserInfoOptional {
       privilege = static_cast<num_t>(std::stoi(g));
     }
   }
-}; //Only used in User::ModifyProfile
-
+};  // Only used in User::ModifyProfile
 
 class User {
   friend Ticket;
 
-public:
+ public:
   explicit User(std::string &name);
 
   void AddUser(std::string &cur_username, UserInfo &user);
@@ -72,9 +72,9 @@ public:
 
   auto IsLogged(std::string &username) const -> bool;
 
-private:
+ private:
   std::unique_ptr<BPlusTree<hash_t, UserInfo, HashComp, HashComp> > user_db_;
 
   sjtu::map<hash_t, UserInfo> logged_user_;
 };
-}
+}  // namespace sjtu

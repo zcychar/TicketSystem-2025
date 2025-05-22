@@ -6,7 +6,7 @@ namespace sjtu {
 User::User(std::string &name) {
   HashComp comp;
   user_db_ = std::make_unique<BPlusTree<hash_t, UserInfo, HashComp, HashComp> >(
-      name + "_db", comp, comp,128);
+      name + "_db", comp, comp, 128);
 }
 
 void User::AddUser(std::string &cur_username, UserInfo &user) {
@@ -50,9 +50,9 @@ void User::Login(std::string &username, std::string &password) {
     return;
   }
 
-  auto status=logged_user_.insert(user_hash, user_vector[0]);
-  if(status.second==false) {
-    std::cout<<"-1\n";
+  auto status = logged_user_.insert(user_hash, user_vector[0]);
+  if (status.second == false) {
+    std::cout << "-1\n";
     return;
   }
   std::cout << "0\n";

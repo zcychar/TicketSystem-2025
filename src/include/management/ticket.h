@@ -7,8 +7,8 @@
 
 namespace sjtu {
 class Train;
-using TrainDate = std::pair<hash_t, num_t>; // trainID_hash && date
-using OrderTime = std::pair<hash_t, int>; // username_hash && timestamp
+using TrainDate = std::pair<hash_t, num_t>;  // trainID_hash && date
+using OrderTime = std::pair<hash_t, int>;    // username_hash && timestamp
 using TrainDateOrder = std::pair<std::pair<hash_t, num_t>, int>;
 using TrainDate = std::pair<hash_t, num_t>;
 using StationTrain = std::pair<hash_t, hash_t>;
@@ -79,7 +79,7 @@ struct TicketDateInfo {
       seatNum[i] += fig;
     }
   }
-}; // 200bytes,changed when release
+};  // 200bytes,changed when release
 
 struct OrderInfo {
   int timestamp;
@@ -97,16 +97,21 @@ struct OrderInfo {
 
   OrderInfo(int stamp, TicketStatus s, const char ID[], const char f[],
             const char t[], num_t index_1, num_t index_2, DateTime &l_time,
-            DateTime &a_time, int p, int n,num_t init_d): timestamp(stamp), status(s),
-                                               leavingTime(l_time),
-                                               arrivingTime(a_time), price(p),
-                                               num(n), from_index(index_1),
-                                               to_index(index_2),init_date(init_d) {
+            DateTime &a_time, int p, int n, num_t init_d)
+      : timestamp(stamp),
+        status(s),
+        leavingTime(l_time),
+        arrivingTime(a_time),
+        price(p),
+        num(n),
+        from_index(index_1),
+        to_index(index_2),
+        init_date(init_d) {
     strncpy(trainID, ID, 20);
     strncpy(from, f, 30);
     strncpy(to, t, 30);
   }
-}; // 100bytes, static info besides status
+};  // 100bytes, static info besides status
 
 struct PendingInfo {
   int timestamp;
@@ -116,7 +121,7 @@ struct PendingInfo {
   num_t to_index;
   int num;
   num_t init_date;
-}; // 48 bytes
+};  // 48 bytes
 // searched by train_ID,should check avaibility then change OrderInfo::status
 
 struct StationTrainInfo {
@@ -131,19 +136,18 @@ struct StationTrainInfo {
   StationTrainInfo() = delete;
 
   StationTrainInfo(hash_t hash, const char ID[], num_t index, int price,
-                   DateRange date, DateTime a_time,
-                   DateTime l_time): trainID_hash(hash), station_index(index),
-                                     price(price), saleDate(date),
-                                     arrivingTime(a_time),
-                                     leavingTime(l_time) {
+                   DateRange date, DateTime a_time, DateTime l_time)
+      : trainID_hash(hash),
+        station_index(index),
+        price(price),
+        saleDate(date),
+        arrivingTime(a_time),
+        leavingTime(l_time) {
     strncpy(trainID, ID, 20);
   }
 
-
-  StationTrainInfo(const StationTrainInfo &other): arrivingTime(
-                                                       other.arrivingTime),
-                                                   leavingTime(
-                                                       other.leavingTime) {
+  StationTrainInfo(const StationTrainInfo &other)
+      : arrivingTime(other.arrivingTime), leavingTime(other.leavingTime) {
     trainID_hash = other.trainID_hash;
     strncpy(trainID, other.trainID, 20);
     station_index = other.station_index;
@@ -161,7 +165,7 @@ struct StationTrainInfo {
     leavingTime = other.leavingTime;
     return *this;
   }
-}; // 48 bytes ,changed when release
+};  // 48 bytes ,changed when release
 
 struct TicketComp {
   num_t time;
@@ -174,15 +178,19 @@ struct TicketComp {
   hash_t trainID_hash;
   char trainID[21]{};
 
-  TicketComp(num_t time, int cost,int t_num, num_t index_1, num_t index_2,
-             DateTime l_time, DateTime a_time, hash_t hash,
-             char ID[]): time(time),
-                         cost(cost),ticket_num(t_num), station_index_1(index_1),
-                         station_index_2(index_2), leavingTime(l_time),
-                         arrivingTime(a_time), trainID_hash(hash) {
+  TicketComp(num_t time, int cost, int t_num, num_t index_1, num_t index_2,
+             DateTime l_time, DateTime a_time, hash_t hash, char ID[])
+      : time(time),
+        cost(cost),
+        ticket_num(t_num),
+        station_index_1(index_1),
+        station_index_2(index_2),
+        leavingTime(l_time),
+        arrivingTime(a_time),
+        trainID_hash(hash) {
     strncpy(trainID, ID, 20);
   }
-}; //56bytes
+};  // 56bytes
 
 struct TicketTransComp {
   num_t time;
@@ -191,15 +199,13 @@ struct TicketTransComp {
   TicketComp ticket_1;
   TicketComp ticket_2;
 
-  TicketTransComp(TicketComp &ticket_1,
-                  TicketComp &ticket_2, const char st[]): ticket_1(ticket_1),
-    ticket_2(ticket_2) {
+  TicketTransComp(TicketComp &ticket_1, TicketComp &ticket_2, const char st[])
+      : ticket_1(ticket_1), ticket_2(ticket_2) {
     time = ticket_2.arrivingTime - ticket_1.leavingTime;
     cost = ticket_1.cost + ticket_2.cost;
     strncpy(station, st, 30);
   }
 };
-
 
 struct SortByTime {
   bool operator()(TicketComp &lhs, TicketComp &rhs) {
@@ -252,53 +258,51 @@ struct TranSortByCost {
 };
 
 inline auto TransferPossible(const DateTime arr_1, const DateTime &lft_1,
-                             const DateTime &arr_2,
-                             const DateTime &lft_2) -> bool {
+                             const DateTime &arr_2, const DateTime &lft_2)
+    -> bool {
   return arr_2 <= lft_1 && arr_1 <= lft_2;
 }
 
 class Ticket {
   friend Train;
 
-public:
+ public:
   Ticket(std::string &name, User *user);
 
   void QueryTicket(std::string &from, std::string &to, num_t date,
                    std::string comp = "time");
 
   void QueryTransfer(Train *train, std::string &from, std::string &to,
-                     num_t date,
-                     std::string comp = "time");
+                     num_t date, std::string comp = "time");
 
   void BuyTicket(int timestamp, std::string &username, std::string &trainID,
-                 num_t date,
-                 int num, std::string &from, std::string &to,
+                 num_t date, int num, std::string &from, std::string &to,
                  std::string queue = "false");
 
   void QueryOrder(std::string &username);
 
   void RefundTicket(std::string &username, int n = 1);
 
-private:
-  //the date of train start
+ private:
+  // the date of train start
   std::unique_ptr<BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>,
                             PairDegradedCompare<TrainDate> > >
-  ticket_db_;
+      ticket_db_;
 
   std::unique_ptr<BPlusTree<OrderTime, OrderInfo, PairCompare<OrderTime>,
                             PairDegradedCompare<OrderTime> > >
-  order_db_;
+      order_db_;
 
-  //also should be the date train start
-  std::unique_ptr<BPlusTree<TrainDateOrder, PendingInfo, TDOCompare,
-                            TDODegradedCompare > >
-  pending_db_;
+  // also should be the date train start
+  std::unique_ptr<
+      BPlusTree<TrainDateOrder, PendingInfo, TDOCompare, TDODegradedCompare> >
+      pending_db_;
 
-  std::unique_ptr<BPlusTree<StationTrain, StationTrainInfo,
-                            PairCompare<StationTrain>, PairDegradedCompare<
-                              StationTrain> > >
-  station_db_;
+  std::unique_ptr<
+      BPlusTree<StationTrain, StationTrainInfo, PairCompare<StationTrain>,
+                PairDegradedCompare<StationTrain> > >
+      station_db_;
 
   User *user_;
 };
-} // namespace sjtu
+}  // namespace sjtu

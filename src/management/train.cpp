@@ -16,7 +16,8 @@ Train::Train(std::string &name, Ticket *ticket) : ticket_(ticket) {
 }
 
 Train::~Train() {
-  auto header_page = train_manager_->WritePage(header_page_id_).AsMut<BPlusTreeHeaderPage>();
+  auto header_page =
+      train_manager_->WritePage(header_page_id_).AsMut<BPlusTreeHeaderPage>();
   header_page->next_page_id_ = train_manager_->GetNextPageId();
 }
 

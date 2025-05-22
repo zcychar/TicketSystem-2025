@@ -8,7 +8,7 @@ Train::Train(std::string &name, Ticket *ticket) : ticket_(ticket) {
   train_db_ =
       std::make_unique<BPlusTree<hash_t, TrainMeta, HashComp, HashComp> >(
           "train_db", comp, comp, 512);
-  train_manager_ = std::make_unique<BufferPoolManager>(512, "train_manager");
+  train_manager_ = std::make_unique<BufferPoolManager>(128, "train_manager");
   header_page_id_ = train_manager_->NewPage();
   WritePageGuard guard = train_manager_->WritePage(header_page_id_);
   auto root_page = guard.AsMut<BPlusTreeHeaderPage>();

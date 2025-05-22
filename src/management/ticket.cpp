@@ -22,18 +22,18 @@ Ticket::Ticket(std::string &name, User *user) : user_(user) {
   ticket_db_ = std::make_unique<
       BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>,
                 PairDegradedCompare<TrainDate> > >(name + "_ticket_db", tdcomp,
-                                                   tdcomp_d, 512);
+                                                   tdcomp_d, 1024);
   order_db_ =
       std::make_unique<BPlusTree<OrderTime, OrderInfo, PairCompare<OrderTime>,
                                  PairDegradedCompare<OrderTime> > >(
-          name + "_order_db", odcomp, odcomp_d, 512);
+          name + "_order_db", odcomp, odcomp_d, 1024);
   pending_db_ = std::make_unique<
       BPlusTree<TrainDateOrder, PendingInfo, TDOCompare, TDODegradedCompare> >(
-      name + "_pending_db", tdocomp, tdocomp_d, 512);
+      name + "_pending_db", tdocomp, tdocomp_d, 1024);
   station_db_ = std::make_unique<
       BPlusTree<StationTrain, StationTrainInfo, PairCompare<StationTrain>,
                 PairDegradedCompare<StationTrain> > >(name + "_station_db",
-                                                      stcomp, stcomp_d, 512);
+                                                      stcomp, stcomp_d, 1024);
 }
 
 void Ticket::QueryTicket(std::string &from, std::string &to, num_t date,
@@ -402,7 +402,7 @@ void Ticket::BuyTicket(int timestamp, std::string &username,
   auto init_date = date - from_station.leavingTime.date;
   vector<TicketDateInfo> ticket_vector;
   ticket_db_->GetValue(TrainDate(train_hash, init_date), &ticket_vector);
-  if (ticket_vector.empty()) {
+  if (ticket_vector.empty()||ticket_vector[0].seatMaxNum<num) {
     std::cout << "-1\n";
     return;
   }

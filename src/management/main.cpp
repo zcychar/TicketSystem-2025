@@ -4,9 +4,9 @@
 
 int main() {
   // freopen("../testcases/36.in","r",stdin);
-  // std::ios::sync_with_stdio(false);
-  // std::cin.tie(0);
-  // std::cout.tie(0);
+  std::ios::sync_with_stdio(false);
+  std::cin.tie(0);
+  std::cout.tie(0);
   sjtu::Management management("ticket_system");
   std::string command;
   sjtu::vector<std::string> parsed_command;

@@ -57,11 +57,11 @@ struct TDODegradedCompare {
 };
 
 struct TicketDateInfo {
-  num_t stationNum = 0;
+  num_t seatMaxNum = 0;
   int seatNum[99] = {};
 
-  TicketDateInfo(int seatnum, num_t stationnum) : stationNum(stationnum) {
-    for (int i = 0; i < stationNum - 1; ++i) {
+  TicketDateInfo(int seatnum, num_t stationnum) : seatMaxNum(seatnum) {
+    for (int i = 0; i < stationnum - 1; ++i) {
       seatNum[i] = seatnum;
     }
   }

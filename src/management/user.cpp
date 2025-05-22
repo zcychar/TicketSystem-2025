@@ -6,7 +6,7 @@ namespace sjtu {
 User::User(std::string &name) {
   HashComp comp;
   user_db_ = std::make_unique<BPlusTree<hash_t, UserInfo, HashComp, HashComp> >(
-      name + "_db", comp, comp,512);
+      name + "_db", comp, comp,256);
 }
 
 void User::AddUser(std::string &cur_username, UserInfo &user) {

@@ -22,14 +22,14 @@ Ticket::Ticket(std::string &name, User *user) : user_(user) {
   ticket_db_ = std::make_unique<
       BPlusTree<TrainDate, TicketDateInfo, PairCompare<TrainDate>,
                 PairDegradedCompare<TrainDate> > >(name + "_ticket_db", tdcomp,
-                                                   tdcomp_d, 512);
+                                                   tdcomp_d, 256);
   order_db_ =
       std::make_unique<BPlusTree<OrderTime, OrderInfo, PairCompare<OrderTime>,
                                  PairDegradedCompare<OrderTime> > >(
-          name + "_order_db", odcomp, odcomp_d, 512);
+          name + "_order_db", odcomp, odcomp_d, 256);
   pending_db_ = std::make_unique<
       BPlusTree<TrainDateOrder, PendingInfo, TDOCompare, TDODegradedCompare> >(
-      name + "_pending_db", tdocomp, tdocomp_d, 512);
+      name + "_pending_db", tdocomp, tdocomp_d, 256);
   station_db_ = std::make_unique<
       BPlusTree<StationTrain, StationTrainInfo, PairCompare<StationTrain>,
                 PairDegradedCompare<StationTrain> > >(name + "_station_db",
